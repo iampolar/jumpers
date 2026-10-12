@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { createSqlClient, migrate, type SqlClient } from '@castwave/db';
+import { createSqlClient, migrate, seed, type SqlClient } from '@castwave/db';
 import { buildApp, type CastWaveApp } from './app.js';
 import { loadConfig, silentLogger } from '@castwave/runtime';
 
@@ -25,6 +25,7 @@ let db: SqlClient;
 beforeEach(async () => {
   db = await createSqlClient({ url: 'memory://' });
   await migrate(db);
+  await seed(db, { withDemoOrganization: false });
   app = await buildApp({ config: loadConfig(baseEnv), db, logger: silentLogger });
   await app.server.ready();
 });
@@ -105,8 +106,24 @@ describe('estado das integracoes', () => {
 });
 
 describe('forma dos erros', () => {
-  it('404 tem codigo estavel e requestId', async () => {
+  it('rota desconhecida responde 401 para anonimo, nao 404', async () => {
+    /*
+     * A autenticacao roda antes da resolucao de rota, de proposito: um
+     * chamador sem credencial nao consegue mapear quais endpoints existem
+     * comparando 404 com 401. A superficie da API nao e publica.
+     */
     const res = await app.server.inject({ method: 'GET', url: '/api/v1/rota-que-nao-existe' });
+    expect(res.statusCode).toBe(401);
+    const body = res.json<{ error: { code: string; requestId: string } }>();
+    expect(body.error.code).toBe('unauthenticated');
+    expect(body.error.requestId).toBeTruthy();
+  });
+
+  it('404 tem codigo estavel e requestId para quem esta autenticado', async () => {
+    const { registerTenant } = await import('./testing/harness.js');
+    const tenant = await registerTenant({ app, db, close: () => Promise.resolve() });
+
+    const res = await tenant.agent.get('/api/v1/rota-que-nao-existe');
     expect(res.statusCode).toBe(404);
     const body = res.json<{ error: { code: string; requestId: string } }>();
     expect(body.error.code).toBe('not_found');

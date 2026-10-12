@@ -5,7 +5,12 @@ import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import Fastify, { type FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { DomainError, type ApiErrorBody } from '@castwave/contracts';
+import {
+  ACCEPTED_AUDIO_MIME,
+  DomainError,
+  MAX_UPLOAD_BYTES,
+  type ApiErrorBody,
+} from '@castwave/contracts';
 import { truncateIp } from '@castwave/core';
 import { migrate, type SqlClient } from '@castwave/db';
 import type { AppConfig } from '@castwave/runtime';
@@ -124,6 +129,19 @@ export async function buildApp(deps: AppDependencies): Promise<CastWaveApp> {
     // hash vive no banco. Assinar adicionaria um segredo a girar sem ganho.
     parseOptions: { httpOnly: true, sameSite: 'lax', path: '/' },
   });
+
+  /*
+   * Corpo binario para upload de audio. O Fastify so entende JSON por padrao;
+   * sem este parser, um `audio/mpeg` chegaria vazio e o arquivo seria
+   * rejeitado por motivo errado. O limite por rota continua valendo.
+   */
+  server.addContentTypeParser(
+    ['application/octet-stream', ...ACCEPTED_AUDIO_MIME],
+    { parseAs: 'buffer', bodyLimit: MAX_UPLOAD_BYTES + 1024 },
+    (_req, body, done) => {
+      done(null, body);
+    },
+  );
 
   // -------------------------------------------------------------------------
   // Correlacao e log de requisicao

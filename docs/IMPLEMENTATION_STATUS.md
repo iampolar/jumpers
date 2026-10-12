@@ -102,7 +102,7 @@ lojista entram sobre a API, não antes dela.
 | --- | --- | --- |
 | `avoidBackToBackSameSpot` comparava com o último spot de todos | Teste de inserção falhou: playlist com spot único parava de tocá-lo | Passou a comparar com o item imediatamente anterior |
 | Driver PGlite reportava `rowCount: 0` em INSERT/UPDATE/DELETE | Seed disse "0 planos inseridos" tendo inserido 3 | `affectedRows` quando não há linhas retornadas. **Relevante para segurança**: o padrão `update … where organization_id = $1` com `rowCount === 0 → 404` negaria operações legítimas |
-| BOM literal (`EF BB BF`) dentro do código-fonte | Lint acusou "irregular whitespace" | Substituído por escape `﻿`; scanner permanente adicionado ao `verify` |
+| BOM literal (`EF BB BF`) dentro do código-fonte | Lint acusou "irregular whitespace" | Substituído por escape `\uFEFF`; scanner permanente adicionado ao `verify` |
 | `isProduction` lido do ambiente do processo, não do argumento | Teste de produção passou pelo motivo errado | `loadConfig(env)` virou função pura do argumento |
 | Diretório do banco resolvia contra `packages/db/` | `npm run db:migrate` falhou com ENOENT | Ancorado na raiz do monorepo; diretório criado se faltar |
 | Worker importava de dentro de `apps/api` | `tsc` recusou: fora do `rootDir` | `config` e `logger` movidos para `packages/runtime` |

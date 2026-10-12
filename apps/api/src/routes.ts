@@ -1,6 +1,8 @@
 import type { FastifyInstance } from 'fastify';
 import type { AppServices } from './http/context.js';
+import { registerAnnouncementRoutes } from './modules/announcements/routes.js';
 import { registerDeviceRoutes } from './modules/devices/routes.js';
+import { registerMediaRoutes } from './modules/media/routes.js';
 import { registerOrganizationRoutes } from './modules/organizations/routes.js';
 import { registerStoreRoutes } from './modules/stores/routes.js';
 
@@ -15,4 +17,6 @@ export function registerDomainRoutes(server: FastifyInstance, services: AppServi
   registerOrganizationRoutes(server, services);
   registerStoreRoutes(server, services);
   registerDeviceRoutes(server, services);
+  registerMediaRoutes(server, services);
+  registerAnnouncementRoutes(server, services);
 }
