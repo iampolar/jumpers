@@ -107,18 +107,30 @@ export function registerAuthentication(server: FastifyInstance, services: AppSer
     // ---------------------------------------------------------------------
     // Painel: cookie de sessao
     // ---------------------------------------------------------------------
+    const isPublic = PUBLIC_ROUTES.has(routeKey);
     const cookie = req.cookies[SESSION_COOKIE];
+
     if (cookie) {
       const resolved = await resolveSession(db, cookie);
       if (resolved) {
         req.principal = resolved.principal;
-        // CSRF so faz sentido com cookie: e ele que o navegador envia sozinho.
-        assertCsrf(req, resolved.csrfSecret);
+        /*
+         * CSRF so faz sentido com cookie -- e ele que o navegador envia
+         * sozinho -- e so em rota que depende da sessao.
+         *
+         * Numa rota publica a checagem seria ativamente DANOSA: o tablet da
+         * loja costuma ter um cookie de console de quando alguem logou nele,
+         * e exigir token CSRF ali faria o pareamento do player falhar com
+         * "sessao expirada" sem nenhum ganho de seguranca -- a rota nao usa
+         * a sessao para nada. O mesmo vale para login num navegador que ainda
+         * tem sessao antiga.
+         */
+        if (!isPublic) assertCsrf(req, resolved.csrfSecret);
         return;
       }
     }
 
-    if (PUBLIC_ROUTES.has(routeKey)) return;
+    if (isPublic) return;
 
     throw new DomainError('unauthenticated', 'Faca login para continuar.');
   });

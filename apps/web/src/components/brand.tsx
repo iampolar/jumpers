@@ -1,12 +1,16 @@
 /**
  * Marca CastWave: coelho geometrico unido a ondas sonoras.
  *
- * Desenhado como SVG proprio, nao como PNG da logo: o PNG original e escuro
- * sobre claro e ilegivel abaixo de ~48 px. Aqui a silhueta e solida, as ondas
- * tem peso de traco fixo e tudo herda `currentColor`, entao a mesma marca
- * funciona no menu lateral escuro, no favicon de 16 px e numa impressao.
+ * Desenhado como SVG proprio, nao como PNG da logo original: aquele arquivo e
+ * escuro sobre claro e vira um borrao abaixo de ~48 px. Aqui as formas sao
+ * primitivas grandes -- duas orelhas, uma cabeca, tres arcos -- justamente
+ * para sobreviver ao favicon de 16 px, que e onde a maioria das marcas morre.
  *
- * Silhueta, nao mascote: sem olho redondo, sem sorriso, sem traco infantil.
+ * A silhueta herda `currentColor`; so as ondas tem cor propria. Assim a mesma
+ * marca funciona no menu escuro, numa impressao em preto e branco e no modo
+ * de alto contraste do sistema.
+ *
+ * Silhueta, nao mascote: sem olho redondo, sem focinho, sem sorriso.
  */
 
 export function CastWaveMark({ size = 32, className }: { size?: number; className?: string }) {
@@ -14,47 +18,44 @@ export function CastWaveMark({ size = 32, className }: { size?: number; classNam
     <svg
       width={size}
       height={size}
-      viewBox="0 0 48 48"
+      viewBox="0 0 32 32"
       fill="none"
       className={className}
       role="img"
       aria-label="CastWave"
     >
       <defs>
-        <linearGradient id="cw-wave" x1="2" y1="34" x2="20" y2="12" gradientUnits="userSpaceOnUse">
+        <linearGradient id="cw-wave" x1="1" y1="24" x2="13" y2="9" gradientUnits="userSpaceOnUse">
           <stop stopColor="#16D9E8" />
-          <stop offset="0.55" stopColor="#3977FF" />
+          <stop offset="0.5" stopColor="#3977FF" />
           <stop offset="1" stopColor="#7C5CFF" />
         </linearGradient>
       </defs>
 
-      {/* Ondas sonoras: tres arcos concentricos, peso decrescente. */}
-      <path
-        d="M9 12.5a22 22 0 0 0 0 23"
-        stroke="url(#cw-wave)"
-        strokeWidth="3.4"
-        strokeLinecap="round"
-      />
-      <path
-        d="M15.5 17.5a13 13 0 0 0 0 13"
-        stroke="url(#cw-wave)"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-      <path
-        d="M21.5 21.5a5.5 5.5 0 0 1 0 5"
-        stroke="url(#cw-wave)"
-        strokeWidth="2.6"
-        strokeLinecap="round"
-      />
+      {/*
+        Ondas: tres arcos concentricos abrindo para a esquerda, peso
+        decrescente. Sao o unico elemento colorido -- a parte que diz "audio".
+      */}
+      <path d="M4.2 9.5a13 13 0 0 0 0 13" stroke="url(#cw-wave)" strokeWidth="2.6" strokeLinecap="round" />
+      <path d="M8.8 12.4a7.6 7.6 0 0 0 0 7.2" stroke="url(#cw-wave)" strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M13.2 14.8a3.2 3.2 0 0 0 0 2.4" stroke="url(#cw-wave)" strokeWidth="2.2" strokeLinecap="round" />
 
-      {/* Cabeca e orelhas em uma unica silhueta solida. */}
+      {/*
+        Orelhas: duas capsulas inclinadas, com angulos diferentes para dar
+        atencao em vez de simetria morta. Desenhadas como traco grosso com
+        ponta arredondada -- mais robusto em tamanho pequeno que um poligono.
+      */}
+      <path d="M20.4 12.2 18.6 4.1" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" />
+      <path d="M24.1 12.6 25.2 5.4" stroke="currentColor" strokeWidth="3.1" strokeLinecap="round" />
+
+      {/*
+        Cabeca: massa unica arredondada, levemente alongada para a direita,
+        onde ficaria o focinho. Fecha a silhueta sem precisar de detalhe.
+      */}
       <path
-        d="M30.2 4.2c.9-.5 2 .1 2.1 1.1l1.2 11.2 4.6 2.6c3.9 2.2 6 6.6 5.2 11l-.3 1.8c-.6 3.3-3.1 5.9-6.4 6.6l-9.8 2c-1 .2-2-.5-2-1.6l-.3-5.3-3.9-6.9a9.4 9.4 0 0 1 1.5-11.2l8.1-11.3Z"
+        d="M22.1 11.4c3.8 0 6.9 2.6 6.9 6.3 0 3.1-1.8 5.4-4.6 6.4l-4.6 1.7c-1 .4-2-.4-2-1.4v-3.1c-1.9-1-3.1-2.6-3.1-4.6 0-3.4 3.3-5.3 7.4-5.3Z"
         fill="currentColor"
       />
-      {/* Recorte do olho: vazado, nao desenhado, para nao virar mascote. */}
-      <path d="M36.6 23.1a1.9 2.6 0 1 0 0 .01Z" fill="#070A12" opacity="0.92" />
     </svg>
   );
 }

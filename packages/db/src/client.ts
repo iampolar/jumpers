@@ -1,5 +1,5 @@
-import { existsSync, mkdirSync, readFileSync } from 'node:fs';
-import { dirname, isAbsolute, resolve } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PGlite } from '@electric-sql/pglite';
 import pg from 'pg';
@@ -218,11 +218,67 @@ function repoRoot(): string {
   return found ?? process.cwd();
 }
 
+/**
+ * Trava de processo unico para o PGlite em disco.
+ *
+ * PGlite e um PostgreSQL embarcado: um unico processo pode abrir o diretorio
+ * de dados. Dois (API + worker, ou duas APIs apos um restart mal feito)
+ * corrompem o cluster e o segundo morre com um `RuntimeError: Aborted()` do
+ * WebAssembly -- erro que nao diz absolutamente nada sobre a causa real.
+ *
+ * O arquivo de trava guarda o PID. Se o dono nao existe mais, a trava e
+ * considerada orfa e reaproveitada; se existe, falhamos com uma mensagem que
+ * explica o problema e as duas saidas.
+ */
+function acquireSingleProcessLock(dataDir: string): void {
+  const lockFile = join(dataDir, '.castwave-lock');
+
+  if (existsSync(lockFile)) {
+    const owner = Number(readFileSync(lockFile, 'utf8').trim());
+    let alive: boolean;
+    try {
+      // Sinal 0 nao envia nada: so testa se o processo existe.
+      process.kill(owner, 0);
+      alive = owner !== process.pid;
+    } catch {
+      alive = false; // processo morto: trava orfa
+    }
+
+    if (alive) {
+      throw new Error(
+        [
+          `O banco de desenvolvimento em "${dataDir}" ja esta aberto pelo processo ${owner}.`,
+          'PGlite e um PostgreSQL embarcado de processo unico -- dois processos corrompem o cluster.',
+          '  - para rodar API e worker juntos, use um PostgreSQL de verdade:',
+          '      DATABASE_URL=postgres://castwave:castwave@localhost:5432/castwave',
+          '  - ou encerre o outro processo antes de subir este.',
+        ].join('\n'),
+      );
+    }
+    rmSync(lockFile, { force: true });
+  }
+
+  writeFileSync(lockFile, String(process.pid), 'utf8');
+  const release = (): void => {
+    try {
+      if (existsSync(lockFile) && readFileSync(lockFile, 'utf8').trim() === String(process.pid)) {
+        rmSync(lockFile, { force: true });
+      }
+    } catch {
+      /* encerrando: nada a fazer */
+    }
+  };
+  process.once('exit', release);
+  process.once('SIGINT', release);
+  process.once('SIGTERM', release);
+}
+
 function resolveDataDir(url: string): string {
   const raw = url.slice('file://'.length);
   const path = isAbsolute(raw) ? raw : resolve(repoRoot(), raw);
   // PGlite abre o diretorio mas nao cria a arvore de pais.
   mkdirSync(path, { recursive: true });
+  acquireSingleProcessLock(path);
   return path;
 }
 

@@ -227,7 +227,26 @@ export function registerAuthRoutes(server: FastifyInstance, services: AppService
 
   server.get('/api/v1/auth/me', async (req) => {
     const principal = requireUser(req);
-    return { session: await buildSessionContext(services, principal) };
+
+    /*
+     * O token CSRF volta aqui de proposito.
+     *
+     * Ele vive apenas na memoria do cliente -- nunca em localStorage, onde um
+     * XSS o leria. So que recarregar a pagina (F5, ou abrir uma URL direto)
+     * zera essa memoria, e sem o token toda escrita passaria a falhar com
+     * "sessao expirada" ate a pessoa relogar. Devolve-lo na mesma resposta que
+     * ja exige o cookie restaura o par sem enfraquecer nada: quem nao tem o
+     * cookie nao chega ate aqui.
+     */
+    const session = await db.query<{ csrf_secret: string }>(
+      'select csrf_secret from sessions where id = $1',
+      [principal.sessionId],
+    );
+
+    return {
+      csrfToken: session.rows[0]?.csrf_secret ?? null,
+      session: await buildSessionContext(services, principal),
+    };
   });
 
   server.post('/api/v1/auth/switch-organization', async (req, reply) => {

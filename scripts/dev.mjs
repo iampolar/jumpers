@@ -106,8 +106,26 @@ try {
   process.exit(1);
 }
 
+/*
+ * PGlite em disco aceita UM processo. Subir o worker junto abriria o mesmo
+ * diretorio duas vezes e corromperia o cluster -- a trava em
+ * packages/db/src/client.ts barra isso, mas aqui evitamos o erro de vez.
+ * Com um PostgreSQL de verdade os dois rodam lado a lado, como em producao.
+ */
+const dbUrl = process.env.DATABASE_URL ?? 'file://./.data/castwave';
+const pgliteEmDisco = dbUrl.startsWith('file://');
+
 start('api', 'npm', ['run', 'dev', '-w', '@castwave/api']);
-start('worker', 'npm', ['run', 'dev', '-w', '@castwave/worker']);
+if (pgliteEmDisco) {
+  process.stdout.write(
+    prefix(
+      'setup',
+      'worker nao iniciado: PGlite em disco e de processo unico. Use DATABASE_URL=postgres://... para rodar os dois.\n',
+    ),
+  );
+} else {
+  start('worker', 'npm', ['run', 'dev', '-w', '@castwave/worker']);
+}
 start('web', 'npm', ['run', 'dev', '-w', '@castwave/web']);
 
 process.stdout.write(

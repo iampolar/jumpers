@@ -191,6 +191,25 @@ describe('pareamento', () => {
     expect(body.timezone).toBe('America/Sao_Paulo');
   });
 
+  it('pareia mesmo no navegador que ja tem sessao de console aberta', async () => {
+    /*
+     * Regressao encontrada testando no navegador: o tablet da loja costuma
+     * ter um cookie de console de quando alguem logou nele. Como /devices/pair
+     * e rota publica, exigir CSRF ali fazia o pareamento falhar com "sessao
+     * expirada" -- sem nenhum ganho, porque a rota nao usa a sessao.
+     */
+    const code = await issueCode(tenant.agent, store.id, store.zoneId);
+
+    // Mesmo agente do console: leva cookie de sessao, nao leva token CSRF.
+    const res = await tenant.agent.request({
+      method: 'POST',
+      url: '/api/v1/devices/pair',
+      payload: { code },
+      headers: { cookie: tenant.agent.cookie!, 'x-csrf-token': '' },
+    });
+    expect(res.statusCode).toBe(201);
+  });
+
   it('guarda o codigo apenas como hash', async () => {
     const code = await issueCode(tenant.agent, store.id, store.zoneId);
     const { rows } = await ctx.db.query<{ code_hash: string }>('select code_hash from device_pairing_codes');

@@ -188,6 +188,26 @@ describe('sessao', () => {
     expect(session.scopedStoreIds).toBeNull();
   });
 
+  it('/auth/me devolve o token CSRF para sobreviver a um F5', async () => {
+    /*
+     * Regressao: o token CSRF vive so na memoria do cliente. Sem devolve-lo
+     * aqui, recarregar a pagina deixava o usuario logado porem incapaz de
+     * salvar qualquer coisa -- toda escrita respondia "sessao expirada".
+     */
+    const tenant = await registerTenant(ctx);
+    const res = await tenant.agent.get('/api/v1/auth/me');
+    const body = res.json<{ csrfToken: string }>();
+    expect(body.csrfToken).toBeTruthy();
+
+    // E o token devolvido e aceito numa escrita real.
+    const escrita = await tenant.agent.request({
+      method: 'POST',
+      url: '/api/v1/auth/revoke-sessions',
+      headers: { cookie: tenant.agent.cookie!, 'x-csrf-token': body.csrfToken },
+    });
+    expect(escrita.statusCode).toBe(200);
+  });
+
   it('sem cookie, rota privada responde 401', async () => {
     const anonimo = createAgent(ctx.app);
     const res = await anonimo.get('/api/v1/auth/me');
