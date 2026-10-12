@@ -1,6 +1,10 @@
 import type { FastifyInstance } from 'fastify';
 import type { AppServices } from './http/context.js';
+import { registerAdminRoutes } from './modules/admin/routes.js';
+import { registerAiRoutes } from './modules/ai/routes.js';
+import { registerAnalyticsRoutes } from './modules/analytics/routes.js';
 import { registerAnnouncementRoutes } from './modules/announcements/routes.js';
+import { registerBillingRoutes } from './modules/billing/routes.js';
 import { registerCampaignRoutes } from './modules/campaigns/routes.js';
 import { registerDeviceRoutes } from './modules/devices/routes.js';
 import { registerMediaRoutes } from './modules/media/routes.js';
@@ -27,4 +31,8 @@ export function registerDomainRoutes(server: FastifyInstance, services: AppServi
   registerScheduleRoutes(server, services);
   registerCampaignRoutes(server, services);
   registerPlaybackRoutes(server, services);
+  registerAnalyticsRoutes(server, services);
+  registerBillingRoutes(server, services);
+  registerAiRoutes(server, services);
+  registerAdminRoutes(server, services);
 }
