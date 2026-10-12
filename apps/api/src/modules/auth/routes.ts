@@ -9,10 +9,10 @@ import {
   type SessionContext,
 } from '@castwave/contracts';
 import type { UserPrincipal } from '@castwave/core';
-import { AUDIT_ACTIONS } from '../../audit.js';
-import { assertCsrf, noContent, requireUser, type AppServices } from '../../http/context.js';
-import { parseBody } from '../../http/validate.js';
-import * as auth from './service.js';
+import { AUDIT_ACTIONS } from '../../audit';
+import { assertCsrf, noContent, requireUser, type AppServices } from '../../http/context';
+import { parseBody } from '../../http/validate';
+import * as auth from './service';
 
 /**
  * Rotas de sessao.

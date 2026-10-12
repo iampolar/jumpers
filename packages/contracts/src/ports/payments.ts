@@ -1,4 +1,4 @@
-import type { SubscriptionAction } from '../state-machines.js';
+import type { SubscriptionAction } from '../state-machines';
 
 /**
  * Porta de pagamento.

@@ -7,10 +7,10 @@ import {
   type Subscription,
 } from '@castwave/contracts';
 import { buildMeters } from '@castwave/core';
-import { AUDIT_ACTIONS } from '../../audit.js';
-import { authorize, type AppServices } from '../../http/context.js';
-import { parseBody } from '../../http/validate.js';
-import { loadUsage } from './usage.js';
+import { AUDIT_ACTIONS } from '../../audit';
+import { authorize, type AppServices } from '../../http/context';
+import { parseBody } from '../../http/validate';
+import { loadUsage } from './usage';
 
 /**
  * Planos, assinatura e consumo.

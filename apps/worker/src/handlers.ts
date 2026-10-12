@@ -1,6 +1,6 @@
 import type { JobQueue } from '@castwave/contracts';
 import { localDateString } from '@castwave/core';
-import type { JobHandler } from './runner.js';
+import type { JobHandler } from './runner';
 
 /**
  * Handlers das filas.

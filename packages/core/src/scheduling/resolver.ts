@@ -6,7 +6,7 @@ import {
   minutesFromLocalTime,
   weekdayOfLocalDate,
   zonedParts,
-} from '../time/timezone.js';
+} from '../time/timezone';
 
 /**
  * Resolvedor de programacao.

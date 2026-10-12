@@ -1,4 +1,4 @@
-import type { OrganizationRole, PlatformRole } from './enums.js';
+import type { OrganizationRole, PlatformRole } from './enums';
 
 /**
  * Matriz de permissoes.

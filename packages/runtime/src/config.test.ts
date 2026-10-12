@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ConfigError, describeConfig, loadConfig } from './config.js';
+import { ConfigError, describeConfig, loadConfig } from './config';
 
 const prodBase: NodeJS.ProcessEnv = {
   NODE_ENV: 'production',

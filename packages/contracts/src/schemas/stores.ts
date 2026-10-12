@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { DEVICE_STATUSES, STORE_STATUSES, ZONE_STATUSES } from '../enums.js';
-import { zId, zIsoDateTime, zLocalTime, zSafeText, zSlug, zTimezone, zWeekday } from './common.js';
+import { DEVICE_STATUSES, STORE_STATUSES, ZONE_STATUSES } from '../enums';
+import { zId, zIsoDateTime, zLocalTime, zSafeText, zSlug, zTimezone, zWeekday } from './common';
 
 export const zOpeningHours = z
   .array(

@@ -17,9 +17,9 @@ import {
   type ScheduleWindow,
   type StoreScheduleContext,
 } from '@castwave/core';
-import { AUDIT_ACTIONS } from '../../audit.js';
-import { authorize, authorizeStore, created, noContent, type AppServices } from '../../http/context.js';
-import { idOf, parseBody, parseQuery } from '../../http/validate.js';
+import { AUDIT_ACTIONS } from '../../audit';
+import { authorize, authorizeStore, created, noContent, type AppServices } from '../../http/context';
+import { idOf, parseBody, parseQuery } from '../../http/validate';
 
 /**
  * Agenda.

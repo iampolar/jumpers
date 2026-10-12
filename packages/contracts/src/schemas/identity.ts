@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { MEMBERSHIP_STATUSES, ORGANIZATION_ROLES, ORGANIZATION_STATUSES, PLATFORM_ROLES, USER_STATUSES } from '../enums.js';
-import { zEmail, zId, zIsoDateTime, zSafeText, zSlug, zTimezone } from './common.js';
+import { MEMBERSHIP_STATUSES, ORGANIZATION_ROLES, ORGANIZATION_STATUSES, PLATFORM_ROLES, USER_STATUSES } from '../enums';
+import { zEmail, zId, zIsoDateTime, zSafeText, zSlug, zTimezone } from './common';
 
 /**
  * Politica de senha. 12 caracteres e o piso do NIST SP 800-63B quando nao ha

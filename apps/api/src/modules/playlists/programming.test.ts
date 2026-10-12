@@ -5,8 +5,8 @@ import {
   type Agent,
   type RegisteredTenant,
   type TestContext,
-} from '../../testing/harness.js';
-import { wavTone } from '../../testing/audio.js';
+} from '../../testing/harness';
+import { wavTone } from '../../testing/audio';
 
 let ctx: TestContext;
 let tenant: RegisteredTenant;

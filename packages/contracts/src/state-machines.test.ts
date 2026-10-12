@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { DomainError } from './errors.js';
+import { DomainError } from './errors';
 import {
   announcementMachine,
   campaignMachine,
   deviceMachine,
   subscriptionMachine,
   WRITABLE_SUBSCRIPTION_STATUSES,
-} from './state-machines.js';
+} from './state-machines';
 
 describe('anuncio', () => {
   it('percorre o caminho feliz com aprovacao', () => {

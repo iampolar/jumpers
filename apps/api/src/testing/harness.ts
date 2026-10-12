@@ -1,7 +1,7 @@
 import type { InjectOptions, LightMyRequestResponse } from 'fastify';
 import { createSqlClient, migrate, seed, type SqlClient } from '@castwave/db';
 import { loadConfig, silentLogger } from '@castwave/runtime';
-import { buildApp, type CastWaveApp } from '../app.js';
+import { buildApp, type CastWaveApp } from '../app';
 
 /**
  * Arnes de teste de integracao.

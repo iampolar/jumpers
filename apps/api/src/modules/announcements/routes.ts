@@ -12,9 +12,9 @@ import {
   type AnnouncementVersion,
 } from '@castwave/contracts';
 import { ANNOUNCEMENT_TEMPLATES, contentHash, estimateScriptDurationMs } from '@castwave/core';
-import { AUDIT_ACTIONS } from '../../audit.js';
-import { authorize, created, type AppServices } from '../../http/context.js';
-import { idOf, parseBody, parseQuery } from '../../http/validate.js';
+import { AUDIT_ACTIONS } from '../../audit';
+import { authorize, created, type AppServices } from '../../http/context';
+import { idOf, parseBody, parseQuery } from '../../http/validate';
 
 /**
  * Anuncios e versionamento.

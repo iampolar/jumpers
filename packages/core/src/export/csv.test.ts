@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { escapeCsvCell, safeDownloadFilename, toCsv } from './csv.js';
+import { escapeCsvCell, safeDownloadFilename, toCsv } from './csv';
 
 describe('CSV injection', () => {
   it('neutraliza celulas que o Excel trataria como formula', () => {

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { createAgent, createTestContext, registerTenant, type TestContext } from '../../testing/harness.js';
+import { createAgent, createTestContext, registerTenant, type TestContext } from '../../testing/harness';
 
 let ctx: TestContext;
 
@@ -326,7 +326,7 @@ describe('recuperacao de senha', () => {
     });
 
     // Emite e captura o token direto do servico (sem SMTP configurado).
-    const { requestPasswordReset } = await import('./service.js');
+    const { requestPasswordReset } = await import('./service');
     const issued = (await requestPasswordReset(ctx.db, 'marina@aurora.test'))!;
 
     const agent = createAgent(ctx.app);
@@ -356,7 +356,7 @@ describe('recuperacao de senha', () => {
   });
 
   it('recusa token expirado', async () => {
-    const { requestPasswordReset } = await import('./service.js');
+    const { requestPasswordReset } = await import('./service');
     const issued = (await requestPasswordReset(ctx.db, 'marina@aurora.test'))!;
     await ctx.db.query("update password_reset_tokens set expires_at = now() - interval '1 minute'");
 
@@ -369,7 +369,7 @@ describe('recuperacao de senha', () => {
   });
 
   it('um novo pedido invalida o anterior', async () => {
-    const { requestPasswordReset } = await import('./service.js');
+    const { requestPasswordReset } = await import('./service');
     const primeiro = (await requestPasswordReset(ctx.db, 'marina@aurora.test'))!;
     await requestPasswordReset(ctx.db, 'marina@aurora.test');
 

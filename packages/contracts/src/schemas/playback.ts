@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { PLAYBACK_EVENT_TYPES, PLAYLIST_ITEM_TYPES } from '../enums.js';
-import { zId, zIsoDateTime } from './common.js';
+import { PLAYBACK_EVENT_TYPES, PLAYLIST_ITEM_TYPES } from '../enums';
+import { zId, zIsoDateTime } from './common';
 
 /**
  * Manifesto de reproducao.

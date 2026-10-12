@@ -9,10 +9,10 @@ import {
   type Device,
 } from '@castwave/contracts';
 import { assertWithinQuota, hashToken, randomToken } from '@castwave/core';
-import { AUDIT_ACTIONS } from '../../audit.js';
-import { authorize, authorizeStore, created, type AppServices } from '../../http/context.js';
-import { idOf, parseBody } from '../../http/validate.js';
-import { loadUsage } from '../billing/usage.js';
+import { AUDIT_ACTIONS } from '../../audit';
+import { authorize, authorizeStore, created, type AppServices } from '../../http/context';
+import { idOf, parseBody } from '../../http/validate';
+import { loadUsage } from '../billing/usage';
 
 /**
  * Pareamento e ciclo de vida do player.

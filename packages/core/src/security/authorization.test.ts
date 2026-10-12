@@ -8,7 +8,7 @@ import {
   requirePlatformRole,
   requireStoreScope,
   type UserPrincipal,
-} from './authorization.js';
+} from './authorization';
 
 const principal = (over: Partial<UserPrincipal> = {}): UserPrincipal => ({
   kind: 'user',

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { createTestContext, registerTenant, type Agent, type RegisteredTenant, type TestContext } from '../../testing/harness.js';
-import { mp3DurationMs, mp3Vbr, PAYLOADS_NAO_AUDIO, wavTone } from '../../testing/audio.js';
+import { createTestContext, registerTenant, type Agent, type RegisteredTenant, type TestContext } from '../../testing/harness';
+import { mp3DurationMs, mp3Vbr, PAYLOADS_NAO_AUDIO, wavTone } from '../../testing/audio';
 
 let ctx: TestContext;
 let tenant: RegisteredTenant;

@@ -3,9 +3,9 @@
  * Semeia catalogo de planos e (opcionalmente) a organizacao de demonstracao.
  * Nao destrutivo e recusa rodar em producao.
  */
-import { createSqlClient } from '../client.js';
-import { migrate } from '../migrator.js';
-import { seed } from '../seed.js';
+import { createSqlClient } from '../client';
+import { migrate } from '../migrator';
+import { seed } from '../seed';
 
 const url = process.env.DATABASE_URL ?? 'file://./.data/castwave';
 const plansOnly = process.argv.includes('--plans-only');

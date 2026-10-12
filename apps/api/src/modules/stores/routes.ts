@@ -11,10 +11,10 @@ import {
   type Zone,
 } from '@castwave/contracts';
 import { assertWithinQuota } from '@castwave/core';
-import { AUDIT_ACTIONS } from '../../audit.js';
-import { authorize, authorizeStore, created, type AppServices } from '../../http/context.js';
-import { idOf, parseBody, parseParams } from '../../http/validate.js';
-import { loadUsage } from '../billing/usage.js';
+import { AUDIT_ACTIONS } from '../../audit';
+import { authorize, authorizeStore, created, type AppServices } from '../../http/context';
+import { idOf, parseBody, parseParams } from '../../http/validate';
+import { loadUsage } from '../billing/usage';
 
 /**
  * Lojas e zonas de audio.

@@ -1,6 +1,6 @@
 import { DEFAULT_ROTATION_RULES, slugify } from '@castwave/contracts';
 import { hashPassword } from '@castwave/core';
-import type { SqlClient } from './client.js';
+import type { SqlClient } from './client';
 
 /**
  * Seed de desenvolvimento.

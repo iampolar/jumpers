@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { createSqlClient, type SqlClient } from './client.js';
-import { listApplied, migrate, pendingMigrations, resetSchema } from './migrator.js';
-import { MIGRATIONS } from './migrations/index.js';
+import { createSqlClient, type SqlClient } from './client';
+import { listApplied, migrate, pendingMigrations, resetSchema } from './migrator';
+import { MIGRATIONS } from './migrations/index';
 
 /**
  * Estes testes rodam contra PostgreSQL de verdade (PGlite, WASM), do zero.

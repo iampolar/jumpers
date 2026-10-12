@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { zSafeText } from '../schemas/common.js';
-import { MAX_SCRIPT_CHARS, zPronunciationDictionary } from '../schemas/content.js';
+import { zSafeText } from '../schemas/common';
+import { MAX_SCRIPT_CHARS, zPronunciationDictionary } from '../schemas/content';
 
 /**
  * Portas de IA.

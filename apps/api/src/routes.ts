@@ -1,18 +1,18 @@
 import type { FastifyInstance } from 'fastify';
-import type { AppServices } from './http/context.js';
-import { registerAdminRoutes } from './modules/admin/routes.js';
-import { registerAiRoutes } from './modules/ai/routes.js';
-import { registerAnalyticsRoutes } from './modules/analytics/routes.js';
-import { registerAnnouncementRoutes } from './modules/announcements/routes.js';
-import { registerBillingRoutes } from './modules/billing/routes.js';
-import { registerCampaignRoutes } from './modules/campaigns/routes.js';
-import { registerDeviceRoutes } from './modules/devices/routes.js';
-import { registerMediaRoutes } from './modules/media/routes.js';
-import { registerOrganizationRoutes } from './modules/organizations/routes.js';
-import { registerPlaybackRoutes } from './modules/playback/routes.js';
-import { registerPlaylistRoutes } from './modules/playlists/routes.js';
-import { registerScheduleRoutes } from './modules/schedules/routes.js';
-import { registerStoreRoutes } from './modules/stores/routes.js';
+import type { AppServices } from './http/context';
+import { registerAdminRoutes } from './modules/admin/routes';
+import { registerAiRoutes } from './modules/ai/routes';
+import { registerAnalyticsRoutes } from './modules/analytics/routes';
+import { registerAnnouncementRoutes } from './modules/announcements/routes';
+import { registerBillingRoutes } from './modules/billing/routes';
+import { registerCampaignRoutes } from './modules/campaigns/routes';
+import { registerDeviceRoutes } from './modules/devices/routes';
+import { registerMediaRoutes } from './modules/media/routes';
+import { registerOrganizationRoutes } from './modules/organizations/routes';
+import { registerPlaybackRoutes } from './modules/playback/routes';
+import { registerPlaylistRoutes } from './modules/playlists/routes';
+import { registerScheduleRoutes } from './modules/schedules/routes';
+import { registerStoreRoutes } from './modules/stores/routes';
 
 /**
  * Registro central das rotas de dominio.

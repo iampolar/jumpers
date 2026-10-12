@@ -10,8 +10,8 @@ import {
 } from '@castwave/core';
 import type { SqlClient } from '@castwave/db';
 import type { AppConfig } from '@castwave/runtime';
-import type { AuditWriter } from '../audit.js';
-import type { LocalObjectStorage } from '../storage.js';
+import type { AuditWriter } from '../audit';
+import type { LocalObjectStorage } from '../storage';
 
 /**
  * Contexto de requisicao.

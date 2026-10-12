@@ -7,10 +7,10 @@ import {
   zSpeechSynthesisInput,
 } from '@castwave/contracts';
 import { assertWithinQuota } from '@castwave/core';
-import { authorize, type AppServices } from '../../http/context.js';
-import { parseBody } from '../../http/validate.js';
-import { loadUsage, recordUsage } from '../billing/usage.js';
-import { createAiRegistry, defaultCallOptions } from './registry.js';
+import { authorize, type AppServices } from '../../http/context';
+import { parseBody } from '../../http/validate';
+import { loadUsage, recordUsage } from '../billing/usage';
+import { createAiRegistry, defaultCallOptions } from './registry';
 
 /**
  * Rotas de IA.

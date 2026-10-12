@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createSqlClient, migrate, seed, type SqlClient } from '@castwave/db';
-import { buildApp, type CastWaveApp } from './app.js';
+import { buildApp, type CastWaveApp } from './app';
 import { loadConfig, silentLogger } from '@castwave/runtime';
 
 /**
@@ -120,7 +120,7 @@ describe('forma dos erros', () => {
   });
 
   it('404 tem codigo estavel e requestId para quem esta autenticado', async () => {
-    const { registerTenant } = await import('./testing/harness.js');
+    const { registerTenant } = await import('./testing/harness');
     const tenant = await registerTenant({ app, db, close: () => Promise.resolve() });
 
     const res = await tenant.agent.get('/api/v1/rota-que-nao-existe');

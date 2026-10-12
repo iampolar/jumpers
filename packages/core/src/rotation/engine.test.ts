@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { zRotationRules, type RotationRules } from '@castwave/contracts';
-import { buildRotation, type RotationCandidate } from './engine.js';
+import { buildRotation, type RotationCandidate } from './engine';
 
 const SP = 'America/Sao_Paulo';
 const START = new Date('2026-03-16T13:00:00Z'); // 10:00 em Sao Paulo

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DomainError } from '@castwave/contracts';
-import { NativeAudioProbe, detectContainer } from './native-probe.js';
+import { NativeAudioProbe, detectContainer } from './native-probe';
 
 const probe = new NativeAudioProbe();
 

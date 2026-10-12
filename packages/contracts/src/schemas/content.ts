@@ -4,8 +4,8 @@ import {
   ANNOUNCEMENT_TYPES,
   MEDIA_KINDS,
   MEDIA_STATUSES,
-} from '../enums.js';
-import { zId, zIsoDateTime, zSafeText } from './common.js';
+} from '../enums';
+import { zId, zIsoDateTime, zSafeText } from './common';
 
 // --------------------------------------------------------------------------
 // Biblioteca de audio

@@ -14,14 +14,14 @@ import {
 import { truncateIp } from '@castwave/core';
 import { migrate, type SqlClient } from '@castwave/db';
 import type { AppConfig } from '@castwave/runtime';
-import { buildHealthReport, describeIntegrations } from './health.js';
+import { buildHealthReport, describeIntegrations } from './health';
 import { createLogger, type Logger } from '@castwave/runtime';
-import { createAuditWriter } from './audit.js';
-import { registerAuthentication } from './http/authenticate.js';
-import type { AppServices } from './http/context.js';
-import { registerAuthRoutes } from './modules/auth/routes.js';
-import { registerDomainRoutes } from './routes.js';
-import { createStorage, type LocalObjectStorage } from './storage.js';
+import { createAuditWriter } from './audit';
+import { registerAuthentication } from './http/authenticate';
+import type { AppServices } from './http/context';
+import { registerAuthRoutes } from './modules/auth/routes';
+import { registerDomainRoutes } from './routes';
+import { createStorage, type LocalObjectStorage } from './storage';
 
 export interface AppDependencies {
   readonly config: AppConfig;

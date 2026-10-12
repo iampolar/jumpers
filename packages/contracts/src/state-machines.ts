@@ -1,5 +1,5 @@
-import { DomainError } from './errors.js';
-import type { AnnouncementStatus, CampaignStatus, DeviceStatus, SubscriptionStatus } from './enums.js';
+import { DomainError } from './errors';
+import type { AnnouncementStatus, CampaignStatus, DeviceStatus, SubscriptionStatus } from './enums';
 
 /**
  * Maquinas de estado do dominio.

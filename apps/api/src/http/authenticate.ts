@@ -2,9 +2,9 @@ import type { FastifyInstance } from 'fastify';
 import { DomainError } from '@castwave/contracts';
 import { hashToken } from '@castwave/core';
 import type { SqlClient } from '@castwave/db';
-import { assertCsrf, type AppServices } from './context.js';
-import { SESSION_COOKIE } from '../modules/auth/routes.js';
-import { resolveSession } from '../modules/auth/service.js';
+import { assertCsrf, type AppServices } from './context';
+import { SESSION_COOKIE } from '../modules/auth/routes';
+import { resolveSession } from '../modules/auth/service';
 
 /**
  * Resolucao de identidade.

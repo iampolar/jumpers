@@ -12,9 +12,9 @@ import {
   type PlaylistItem,
 } from '@castwave/contracts';
 import { buildRotation, type RotationCandidate } from '@castwave/core';
-import { AUDIT_ACTIONS } from '../../audit.js';
-import { authorize, created, noContent, type AppServices } from '../../http/context.js';
-import { idOf, parseBody, parseParams, parseQuery } from '../../http/validate.js';
+import { AUDIT_ACTIONS } from '../../audit';
+import { authorize, created, noContent, type AppServices } from '../../http/context';
+import { idOf, parseBody, parseParams, parseQuery } from '../../http/validate';
 
 /**
  * Playlists.

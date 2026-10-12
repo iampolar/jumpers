@@ -1,5 +1,5 @@
 import type { RotationRules } from '@castwave/contracts';
-import { localMinutesOfDay, minutesFromLocalTime } from '../time/timezone.js';
+import { localMinutesOfDay, minutesFromLocalTime } from '../time/timezone';
 
 /**
  * Motor de rotacao.

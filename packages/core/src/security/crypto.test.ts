@@ -10,7 +10,7 @@ import {
   truncateIp,
   verifyPassword,
   verifyUrlToken,
-} from './crypto.js';
+} from './crypto';
 
 describe('senhas', () => {
   it('aceita a senha correta e recusa a errada', async () => {

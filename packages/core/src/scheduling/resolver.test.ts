@@ -6,8 +6,8 @@ import {
   type ScheduleExceptionRule,
   type ScheduleWindow,
   type StoreScheduleContext,
-} from './resolver.js';
-import { localDateTimeToUtc } from '../time/timezone.js';
+} from './resolver';
+import { localDateTimeToUtc } from '../time/timezone';
 
 const SP = 'America/Sao_Paulo';
 const MANAUS = 'America/Manaus';

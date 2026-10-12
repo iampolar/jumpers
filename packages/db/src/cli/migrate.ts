@@ -6,8 +6,8 @@
  *   npm run db:migrate -- --status   so mostra o estado
  *   npm run db:reset              recria o schema (banco descartavel)
  */
-import { createSqlClient } from '../client.js';
-import { listApplied, migrate, pendingMigrations, resetSchema } from '../migrator.js';
+import { createSqlClient } from '../client';
+import { listApplied, migrate, pendingMigrations, resetSchema } from '../migrator';
 
 const url = process.env.DATABASE_URL ?? 'file://./.data/castwave';
 const args = new Set(process.argv.slice(2));

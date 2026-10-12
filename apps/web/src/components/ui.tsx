@@ -433,3 +433,15 @@ export function formatRelative(iso: string | null): string {
   if (seconds < 86_400) return `ha ${Math.floor(seconds / 3600)} h`;
   return `ha ${Math.floor(seconds / 86_400)} d`;
 }
+
+/**
+ * Le um campo de formulario como texto.
+ *
+ * `FormData.get` devolve `string | File`: passar o resultado direto para
+ * `String()` transforma um upload em "[object File]" silenciosamente. Este
+ * helper estreita o tipo e deixa o caso de arquivo explicito.
+ */
+export function fieldText(form: FormData, name: string): string {
+  const value = form.get(name);
+  return typeof value === 'string' ? value : '';
+}

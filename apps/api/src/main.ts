@@ -1,5 +1,5 @@
 import { createSqlClient } from '@castwave/db';
-import { buildApp, prepareDatabase } from './app.js';
+import { buildApp, prepareDatabase } from './app';
 import { ConfigError, createLogger, describeConfig, loadConfig } from '@castwave/runtime';
 
 /**

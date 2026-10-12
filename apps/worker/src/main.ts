@@ -1,8 +1,8 @@
 import { hostname } from 'node:os';
 import { createSqlClient } from '@castwave/db';
 import { ConfigError, createLogger, describeConfig, loadConfig } from '@castwave/runtime';
-import { buildHandlers } from './handlers.js';
-import { enqueue, JobRunner } from './runner.js';
+import { buildHandlers } from './handlers';
+import { enqueue, JobRunner } from './runner';
 
 /**
  * Processo worker.

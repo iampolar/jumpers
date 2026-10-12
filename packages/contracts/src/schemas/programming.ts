@@ -6,8 +6,8 @@ import {
   PLAYLIST_STATUSES,
   SCHEDULE_EXCEPTION_KINDS,
   SPOT_INSERTION_MODES,
-} from '../enums.js';
-import { zId, zIsoDate, zIsoDateTime, zLocalTime, zSafeText, zWeekday } from './common.js';
+} from '../enums';
+import { zId, zIsoDate, zIsoDateTime, zLocalTime, zSafeText, zWeekday } from './common';
 
 // --------------------------------------------------------------------------
 // Playlists

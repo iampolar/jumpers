@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DomainError, type PlanQuotas } from '@castwave/contracts';
-import { assertWithinQuota, buildMeters, formatBytes, type UsageSnapshot } from './entitlements.js';
+import { assertWithinQuota, buildMeters, formatBytes, type UsageSnapshot } from './entitlements';
 
 const quotas: PlanQuotas = {
   maxStores: 3,

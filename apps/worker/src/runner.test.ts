@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { JobQueue } from '@castwave/contracts';
 import { createSqlClient, migrate, type SqlClient } from '@castwave/db';
-import { backoffSeconds, enqueue, JobRunner, type JobHandler } from './runner.js';
-import { buildHandlers } from './handlers.js';
+import { backoffSeconds, enqueue, JobRunner, type JobHandler } from './runner';
+import { buildHandlers } from './handlers';
 
 let db: SqlClient;
 

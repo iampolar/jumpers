@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { createSqlClient, pingDatabase, type SqlClient } from './client.js';
-import { migrate } from './migrator.js';
-import { seed } from './seed.js';
+import { createSqlClient, pingDatabase, type SqlClient } from './client';
+import { migrate } from './migrator';
+import { seed } from './seed';
 
 let open: SqlClient[] = [];
 

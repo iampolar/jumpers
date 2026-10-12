@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { createTestContext, registerTenant, type RegisteredTenant, type TestContext } from '../../testing/harness.js';
+import { createTestContext, registerTenant, type RegisteredTenant, type TestContext } from '../../testing/harness';
 
 let ctx: TestContext;
 let tenant: RegisteredTenant;
@@ -178,7 +178,7 @@ describe('isolamento dos relatorios', () => {
       tenant.userId,
     ]);
 
-    const { createAgent } = await import('../../testing/harness.js');
+    const { createAgent } = await import('../../testing/harness');
     const operador = createAgent(ctx.app);
     const login = await operador.post('/api/v1/auth/login', {
       email: 'operador@aurora.test',
@@ -237,7 +237,7 @@ describe('exportacao CSV', () => {
       tenant.userId,
     ]);
     // Papel mudou: a sessao antiga foi derrubada, entao refazemos login.
-    const { createAgent } = await import('../../testing/harness.js');
+    const { createAgent } = await import('../../testing/harness');
     const editor = createAgent(ctx.app);
     await editor.post('/api/v1/auth/login', { email: tenant.email, password: tenant.password });
 
@@ -248,7 +248,7 @@ describe('exportacao CSV', () => {
 
 describe('planos e uso sem gateway', () => {
   it('lista o catalogo sem exigir sessao', async () => {
-    const { createAgent } = await import('../../testing/harness.js');
+    const { createAgent } = await import('../../testing/harness');
     const anonimo = createAgent(ctx.app);
     const res = await anonimo.get('/api/v1/billing/plans');
     expect(res.statusCode).toBe(200);

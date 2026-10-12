@@ -14,10 +14,10 @@ import {
   signUrlToken,
 } from '@castwave/core';
 import { DEFAULT_ROTATION_RULES, zRotationRules } from '@castwave/contracts';
-import { requireDevice, type AppServices } from '../../http/context.js';
-import { parseBody } from '../../http/validate.js';
-import { toRotationCandidates } from '../playlists/routes.js';
-import { loadStoreScheduleContext } from '../schedules/routes.js';
+import { requireDevice, type AppServices } from '../../http/context';
+import { parseBody } from '../../http/validate';
+import { toRotationCandidates } from '../playlists/routes';
+import { loadStoreScheduleContext } from '../schedules/routes';
 
 /**
  * API do player.

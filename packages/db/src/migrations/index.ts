@@ -1,10 +1,10 @@
-import * as m0001 from './0001_foundation.js';
-import * as m0002 from './0002_stores_devices.js';
-import * as m0003 from './0003_media_announcements.js';
-import * as m0004 from './0004_programming.js';
-import * as m0005 from './0005_playback_analytics.js';
-import * as m0006 from './0006_billing.js';
-import * as m0007 from './0007_operations.js';
+import * as m0001 from './0001_foundation';
+import * as m0002 from './0002_stores_devices';
+import * as m0003 from './0003_media_announcements';
+import * as m0004 from './0004_programming';
+import * as m0005 from './0005_playback_analytics';
+import * as m0006 from './0006_billing';
+import * as m0007 from './0007_operations';
 
 export interface Migration {
   readonly id: string;

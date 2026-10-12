@@ -13,7 +13,7 @@ import {
   weekdayOfLocalDate,
   zonedParts,
   zonedTimeToUtc,
-} from './timezone.js';
+} from './timezone';
 
 const SP = 'America/Sao_Paulo';
 const MANAUS = 'America/Manaus';

@@ -10,9 +10,9 @@ import {
   type OrganizationRole,
 } from '@castwave/contracts';
 import { hashPassword, hashToken, randomToken } from '@castwave/core';
-import { AUDIT_ACTIONS } from '../../audit.js';
-import { authorize, created, noContent, requireUser, type AppServices } from '../../http/context.js';
-import { idOf, parseBody } from '../../http/validate.js';
+import { AUDIT_ACTIONS } from '../../audit';
+import { authorize, created, noContent, requireUser, type AppServices } from '../../http/context';
+import { idOf, parseBody } from '../../http/validate';
 
 /**
  * Organizacao e equipe.

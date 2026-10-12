@@ -9,10 +9,10 @@ import {
   type CampaignStatus,
 } from '@castwave/contracts';
 import { assertWithinQuota } from '@castwave/core';
-import { AUDIT_ACTIONS } from '../../audit.js';
-import { authorize, created, type AppServices } from '../../http/context.js';
-import { idOf, parseBody, parseQuery } from '../../http/validate.js';
-import { loadUsage } from '../billing/usage.js';
+import { AUDIT_ACTIONS } from '../../audit';
+import { authorize, created, type AppServices } from '../../http/context';
+import { idOf, parseBody, parseQuery } from '../../http/validate';
+import { loadUsage } from '../billing/usage';
 
 /**
  * Campanhas.

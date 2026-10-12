@@ -6,7 +6,7 @@ import {
   type Agent,
   type RegisteredTenant,
   type TestContext,
-} from '../../testing/harness.js';
+} from '../../testing/harness';
 
 let ctx: TestContext;
 

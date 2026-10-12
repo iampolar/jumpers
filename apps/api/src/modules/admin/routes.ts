@@ -1,10 +1,10 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { DomainError, type AuditLogEntry, type JobRecord } from '@castwave/contracts';
-import { AUDIT_ACTIONS } from '../../audit.js';
-import { authorize, authorizePlatform, type AppServices } from '../../http/context.js';
-import { idOf, parseQuery } from '../../http/validate.js';
-import { describeIntegrations } from '../../health.js';
+import { AUDIT_ACTIONS } from '../../audit';
+import { authorize, authorizePlatform, type AppServices } from '../../http/context';
+import { idOf, parseQuery } from '../../http/validate';
+import { describeIntegrations } from '../../health';
 
 /**
  * Painel Jumpers.

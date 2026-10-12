@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
-import type { SqlClient } from './client.js';
-import { MIGRATIONS, type Migration } from './migrations/index.js';
+import type { SqlClient } from './client';
+import { MIGRATIONS, type Migration } from './migrations/index';
 
 /**
  * Migrador.

@@ -7,8 +7,8 @@ import {
   NOTIFICATION_SEVERITIES,
   SUBSCRIPTION_STATUSES,
   USAGE_METRICS,
-} from '../enums.js';
-import { zCurrency, zId, zIsoDate, zIsoDateTime, zMoneyCents, zSafeText } from './common.js';
+} from '../enums';
+import { zCurrency, zId, zIsoDate, zIsoDateTime, zMoneyCents, zSafeText } from './common';
 
 // --------------------------------------------------------------------------
 // Analytics

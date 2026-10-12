@@ -2,9 +2,9 @@ import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { DomainError, type OverviewMetrics } from '@castwave/contracts';
 import { eachLocalDate, localDateString, safeDownloadFilename, toCsv } from '@castwave/core';
-import { AUDIT_ACTIONS } from '../../audit.js';
-import { authorize, type AppServices } from '../../http/context.js';
-import { parseQuery } from '../../http/validate.js';
+import { AUDIT_ACTIONS } from '../../audit';
+import { authorize, type AppServices } from '../../http/context';
+import { parseQuery } from '../../http/validate';
 
 /**
  * Relatorios.

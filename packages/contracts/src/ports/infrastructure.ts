@@ -1,4 +1,4 @@
-import type { JobQueue } from '../enums.js';
+import type { JobQueue } from '../enums';
 
 /**
  * Portas de infraestrutura. Cada uma tem pelo menos um driver que roda hoje,
