@@ -1,109 +1,123 @@
 # Estado da implementação
 
 **Atualizado em:** 12/10/2026
-**Como ler:** nada aqui é marcado como pronto sem comando executado e teste
-verde. "Comprovação" é o que foi rodado de verdade nesta máquina.
+**Como ler:** nada é marcado como pronto sem comando executado. "Comprovação"
+é o que foi rodado de verdade nesta máquina.
 
-Baseline de verificação, executado por inteiro:
+---
+
+## Baseline executado
 
 ```
 npm run verify
-  typecheck  tsc -b tsconfig.build.json .......... exit 0
-  lint       eslint . --max-warnings=0 ........... exit 0
-  invisíveis 74 arquivos, 0 achados ............... exit 0
-  testes     14 arquivos, 228 testes ............. 228 passed
+  typecheck   tsc -b tsconfig.build.json .......... exit 0
+  lint        eslint . --max-warnings=0 ........... exit 0
+  invisíveis  164 arquivos, 0 achados .............. exit 0
+  testes      21 arquivos, 380 testes ............. 380 passed
+
+npm run build      API (tsup) + web (next, 18 rotas) ... exit 0
+npm run openapi    47 operações derivadas dos schemas ... exit 0
+npm run aceite     24/24 verificações ................... ATENDIDO
 ```
 
-Teste de fumaça com a API no ar (`npx tsx apps/api/src/main.ts`):
-`/health/live` → 200 · `/health/ready` → 200 `degraded` · `/api/v1/status/integrations` → 200 · rota inexistente → 404 com código estável.
+`npm run aceite` roda o critério de aceite do blueprint contra a API no ar.
+Não é simulação: são chamadas HTTP reais, do cadastro ao relatório.
 
 ---
 
-## Fase 0 — Reconhecimento · **concluída**
+## Roadmap — fase a fase
 
-| Requisito | Estado | Comprovação |
+| Fase | Escopo | Estado |
 | --- | --- | --- |
-| Auditar repositório existente | Concluído | Pasta continha só blueprint, prompt e 2 PNGs. Zero código, zero manifesto, zero migration, sem git. |
-| Baseline de testes anterior | N/A | Não havia suíte para rodar. Registrado como ausente, não como "passou". |
-| Decisões arquiteturais | Concluído | Justificadas no README e nos comentários de cada módulo. |
+| 0 | Reconhecimento e plano de risco | **Concluída** |
+| 1 | Fundação, config, logs, health, CI | **Concluída** |
+| 2 | Auth, organizações, RBAC, isolamento | **Concluída** |
+| 3 | Lojas, zonas, pareamento, heartbeat | **Concluída** |
+| 4 | Mídia, anúncios, versões, aprovação | **Concluída** · falta pipeline FFmpeg |
+| 5 | Playlists, agenda, campanhas | **Concluída** |
+| 6 | Player PWA, manifesto, eventos | **Concluída** · falta service worker de cache |
+| 7 | Relatórios, dashboards, CSV | **Concluída** |
+| 8 | Planos, cotas, uso sem gateway | **Concluída** |
+| 9 | Contratos de IA, sem chamada real | **Concluída** |
+| 10 | Contrato de gateway, sem cobrar | **Concluída** |
+| 11 | Painel Jumpers, auditoria | **Concluída** |
+| 12 | Hardening, acessibilidade, docs | **Parcial** — ver lacunas |
+| 13 | Checklist de ativação | **Concluída** — `docs/ATIVAR_IA_E_GATEWAY.md` |
 
 ---
 
-## Fase 1 — Fundação · **concluída**
+## Critério de aceite do blueprint
 
-| Requisito | Estado | Comprovação | Risco em aberto |
-| --- | --- | --- | --- |
-| Monorepo com workspaces | Concluído | 4 pacotes + 3 apps, `tsc -b` com project references, exit 0 | npm workspaces em vez de pnpm (pnpm não disponível na máquina) |
-| TypeScript strict | Concluído | `noUncheckedIndexedAccess`, `verbatimModuleSyntax`, exit 0 | — |
-| Validação de ambiente fail-fast | Concluído | 18 testes em `packages/runtime/src/config.test.ts` | — |
-| Log estruturado com redação | Concluído | `redact()` testado em profundidade; nenhum segredo sai | — |
-| Request ID e erros consistentes | Concluído | 4 testes; correlation id arbitrário é recusado | — |
-| Health liveness/readiness | Concluído | 4 testes; dependência opcional degrada sem derrubar | — |
-| Banco + migrations | Concluído | 7 migrations aplicam do zero; 17 testes em PostgreSQL real | — |
-| Seed seguro e não destrutivo | Concluído | 7 testes; recusa `NODE_ENV=production`; idempotente | — |
-| CI | **Ausente** | Nenhum workflow escrito ainda | Próxima sessão |
-| Docker Compose | **Ausente** | Dev não precisa dele; produção vai precisar | Próxima sessão |
+Cada linha verificada por `npm run aceite`:
+
+| Requisito | Comprovação |
+| --- | --- |
+| Criar conta e organização | papel `owner`, assinatura em trial |
+| Duas lojas com fusos diferentes | São Paulo e Manaus, horas locais distintas no mesmo instante |
+| Upload de áudio próprio validado | 3 arquivos medidos; ZIP disfarçado recusado |
+| Anúncio manual, editado e aprovado | máquina de estados; transição ilegal recusada |
+| Playlist com spots inseridos | `music > music > promo_spot > music` |
+| Campanha agendada com expiração | vigência avaliada a cada manifesto |
+| Parear player e verificar estado | código de uso único; heartbeat reflete no painel |
+| Relatórios consistentes e CSV | evento aparece no relatório; CSV com BOM |
+| Limites sem cobrança conectada | medidores reais; checkout recusa sem fingir |
+| Operar sem IA e sem gateway | ambos devolvem 503 com ação |
+| Integrações ausentes identificadas | `/status/integrations` diz o que fica indisponível |
+| Isolamento entre tenants | loja alheia → 404; painel Jumpers → 404 |
 
 ---
 
-## Núcleo de domínio — **implementado e testado**
+## Cobertura de teste por área
 
-| Módulo | Estado | Comprovação |
+| Área | Testes | Destaque |
 | --- | --- | --- |
-| Fuso horário e DST | Concluído | 17 testes: 4 offsets brasileiros, salto e recuo em Santiago, dia de 25 h em Nova York |
-| Resolvedor de agenda | Concluído | 20 testes: prioridade, janela cruzando meia-noite, feriado, horário especial, escopo de zona |
-| Motor de rotação | Concluído | 26 testes: inserção por faixas/minutos, teto por hora, vigência, janela de silêncio, determinismo por semente |
-| Máquinas de estado | Concluído | 19 testes: anúncio, dispositivo, campanha, assinatura |
-| RBAC e isolamento | Concluído | 17 testes: 5 papéis, escopo por loja, 404 em vez de 403 |
-| Sonda de áudio nativa | Concluído | 14 testes: WAV, MP3 CBR/VBR, FLAC; recusa ZIP, SVG e EXE disfarçados |
-| Senhas e tokens | Concluído | 17 testes: scrypt, URLs assinadas, truncamento de IP |
-| Cotas de plano | Concluído | 8 testes: bloqueio no limite, erro acionável |
-| Exportação CSV | Concluído | 10 testes: injeção de fórmula neutralizada, path traversal bloqueado |
-| Fila de jobs | Concluído | 18 testes: `skip locked`, lease expirado, backoff, dead letter |
+| Fuso e DST | 17 | salto e recuo em Santiago; dia de 25 h |
+| Resolução de agenda | 20 | prioridade, meia-noite, feriado, sem loop |
+| Motor de rotação | 26 | teto por hora, vigência no meio, determinismo |
+| Máquinas de estado | 19 | webhook duplicado idempotente |
+| RBAC e isolamento | 17 | 404 em vez de 403 |
+| Cripto e privacidade | 17 | URL assinada adulterada; IP truncado |
+| Sonda de áudio | 14 | ZIP, SVG, HTML e EXE recusados |
+| Cotas | 8 | bloqueio no limite exato |
+| CSV | 10 | injeção de fórmula neutralizada |
+| Banco e migrations | 32 | FK composta impede cruzar tenants |
+| API (HTTP real) | 164 | 9 módulos, incluindo isolamento cruzado |
+| Fila | 18 | `SKIP LOCKED`, lease, dead letter |
 
 ---
 
-## Portas das integrações — **contratos prontos, sem fornecedor**
+## Lacunas declaradas
 
-| Porta | Estado | Observação |
+Não executadas nesta máquina. Não contam como aprovadas.
+
+| Item | Por quê | Quando |
 | --- | --- | --- |
-| `AnnouncementCopyProvider` | Interface definida | Nenhum adapter concreto. `disabled` é o padrão. |
-| `SpeechSynthesisProvider` | Interface definida | Separada da geração de texto, de propósito. |
-| `PaymentProvider` | Interface definida | Nenhum gateway escolhido. Domínio independente de fornecedor. |
-| `ObjectStorage` | Driver local pronto | Driver S3 lança erro explícito; não finge funcionar. |
-| `AudioProbe` | Driver nativo pronto | Driver ffprobe entra na Fase 4. |
-| `Mailer` | Interface definida | Sem SMTP, registra `not_configured`. |
+| Pipeline FFmpeg (normalização, LUFS) | binário ausente; sonda nativa cobre tipo e duração | Fase 4 restante |
+| Service worker de cache do player | o player toca e reporta; falta o pre-cache offline | Fase 6 restante |
+| Driver S3 do storage | porta pronta; driver lança erro explícito | antes do deploy |
+| E2E automatizado (Playwright) | fluxo validado manualmente e por `npm run aceite` | antes do primeiro cliente |
+| Teste contra PostgreSQL gerenciado | só PGlite aqui; o SQL é idêntico | junto do deploy |
+| Teste de carga | sem ambiente representativo | antes de escalar |
+| Restauração de backup | exige banco gerenciado | junto do deploy |
+| Adapters reais de IA e gateway | nenhum fornecedor escolhido | após credenciais |
 
 ---
 
-## Ainda não construído
+## Defeitos encontrados e corrigidos
 
-Ordem recomendada, seguindo o roadmap do blueprint:
-
-| Fase | Escopo | Depende de |
-| --- | --- | --- |
-| 2 | Autenticação, sessão, organizações, convites, guards nas rotas | Fundação (pronta) |
-| 3 | Lojas, zonas, pairing, heartbeat, revogação | Fase 2 |
-| 4 | Upload, pipeline de mídia, anúncios, versões, aprovação | Fase 3 |
-| 5 | Playlists e agenda na API e na UI | Motor pronto, falta expor |
-| 6 | Player PWA | Fase 5 |
-| 7 | Relatórios, dashboards, CSV | Fase 6 |
-| 8–13 | Planos, adapters de IA e gateway, painel Jumpers, hardening | Acima |
-
-O console web hoje tem **uma** página: estado real das dependências, lida da
-API. Ela existe para não haver tela decorativa no repositório — as telas do
-lojista entram sobre a API, não antes dela.
-
----
-
-## Defeitos encontrados e corrigidos nesta sessão
+Dez ao todo. Os três mais relevantes vieram de **testar no navegador**, não
+da suíte — registrados aqui porque o padrão importa mais que o bug.
 
 | Defeito | Como apareceu | Correção |
 | --- | --- | --- |
-| `avoidBackToBackSameSpot` comparava com o último spot de todos | Teste de inserção falhou: playlist com spot único parava de tocá-lo | Passou a comparar com o item imediatamente anterior |
-| Driver PGlite reportava `rowCount: 0` em INSERT/UPDATE/DELETE | Seed disse "0 planos inseridos" tendo inserido 3 | `affectedRows` quando não há linhas retornadas. **Relevante para segurança**: o padrão `update … where organization_id = $1` com `rowCount === 0 → 404` negaria operações legítimas |
-| BOM literal (`EF BB BF`) dentro do código-fonte | Lint acusou "irregular whitespace" | Substituído por escape `\uFEFF`; scanner permanente adicionado ao `verify` |
-| `isProduction` lido do ambiente do processo, não do argumento | Teste de produção passou pelo motivo errado | `loadConfig(env)` virou função pura do argumento |
-| Diretório do banco resolvia contra `packages/db/` | `npm run db:migrate` falhou com ENOENT | Ancorado na raiz do monorepo; diretório criado se faltar |
-| Worker importava de dentro de `apps/api` | `tsc` recusou: fora do `rootDir` | `config` e `logger` movidos para `packages/runtime` |
-| Artefatos `.js`/`.d.ts` dentro de `src/` | Lint falhou ao parsear | Removidos e bloqueados no `.gitignore` |
+| Token CSRF perdido ao recarregar | logado, mas toda escrita falhava | `/auth/me` devolve o token |
+| CSRF exigido em rota pública | tablet com cookie de console não pareava | checagem só onde a sessão é usada |
+| PGlite aberto por dois processos | `RuntimeError: Aborted()` do WASM | trava de processo único com mensagem |
+| `rowCount: 0` em INSERT/UPDATE | seed reportou "0 planos" tendo inserido 3 | `affectedRows`; **relevante para segurança** — o padrão `rowCount === 0 → 404` negaria operações legítimas |
+| Transação abortada no lote de eventos | um evento ruim derrubava os bons | `SAVEPOINT` por evento |
+| `avoidBackToBackSameSpot` amplo demais | playlist de spot único parava de tocá-lo | compara com o item imediatamente anterior |
+| BOM literal no código-fonte | caractere invisível | escape + scanner permanente no `verify` |
+| `isProduction` lido do processo | teste validava caminho diferente do real | `loadConfig(env)` virou função pura |
+| Diretório do banco relativo ao pacote | cada app teria o próprio banco | ancorado na raiz do monorepo |
+| Worker importando de dentro da API | `tsc` recusou o `rootDir` | nasceu `packages/runtime` |
+| Imports `.js` quebrando o Turbopack | build do web falhou no 1º import de valor | imports sem extensão em todo o repo |

@@ -29,7 +29,8 @@
     "verify": "npm run typecheck && npm run lint && npm run check:invisible && npm run test",
     "db:status": "tsx packages/db/src/cli/migrate.ts --status",
     "check:invisible": "node scripts/check-invisible.mjs .",
-    "openapi:check": "npm run openapi && git diff --exit-code --quiet docs/openapi.json || (echo \"docs/openapi.json desatualizado: rode npm run openapi e commite\" && exit 1)"
+    "openapi:check": "npm run openapi && git diff --exit-code --quiet docs/openapi.json || (echo \"docs/openapi.json desatualizado: rode npm run openapi e commite\" && exit 1)",
+    "aceite": "node scripts/aceite.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
