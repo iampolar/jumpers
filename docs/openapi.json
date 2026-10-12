@@ -1,0 +1,2557 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "CastWave API",
+    "version": "0.1.0",
+    "description": "API da central de audio CastWave.\n\n**Escopo nunca vem do cliente.** Nenhuma rota le `organization_id` do corpo,\nda query ou de cabecalho: ele sai sempre da credencial autenticada.\n\n**Erros tem codigo estavel.** Trate pelo campo `error.code`, nunca pela mensagem,\nque pode mudar sem aviso. Codigos conhecidos: `validation_failed`, `invalid_state_transition`, `unsupported_media_type`, `checksum_mismatch`, `unauthenticated`, `invalid_credentials`, `session_expired`, `device_token_invalid`, `forbidden`, `csrf_token_invalid`, `device_revoked`, `plan_limit_reached`, `approval_required`, `not_found`, `conflict`, `already_exists`, `pairing_code_used`, `idempotency_key_reused`, `payload_too_large`, `unprocessable_media`, `rate_limited`, `internal_error`, `dependency_unavailable`, `provider_not_configured`, `payments_not_configured`.\n\nEste documento e GERADO a partir dos schemas Zod que validam a entrada em\nruntime (`npm run openapi`). Especificacao e validacao nao divergem."
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:4000",
+      "description": "Desenvolvimento"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "sessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "castwave_session"
+      },
+      "deviceToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Token entregue no pareamento."
+      }
+    },
+    "responses": {
+      "Erro": {
+        "description": "Erro com codigo estavel e identificador de requisicao.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "error"
+              ],
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "message",
+                    "requestId"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "enum": [
+                        "validation_failed",
+                        "invalid_state_transition",
+                        "unsupported_media_type",
+                        "checksum_mismatch",
+                        "unauthenticated",
+                        "invalid_credentials",
+                        "session_expired",
+                        "device_token_invalid",
+                        "forbidden",
+                        "csrf_token_invalid",
+                        "device_revoked",
+                        "plan_limit_reached",
+                        "approval_required",
+                        "not_found",
+                        "conflict",
+                        "already_exists",
+                        "pairing_code_used",
+                        "idempotency_key_reused",
+                        "payload_too_large",
+                        "unprocessable_media",
+                        "rate_limited",
+                        "internal_error",
+                        "dependency_unavailable",
+                        "provider_not_configured",
+                        "payments_not_configured"
+                      ]
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Segura para exibir. Nunca contem stack ou SQL."
+                    },
+                    "action": {
+                      "type": "string",
+                      "description": "Como o usuario resolve, quando aplicavel."
+                    },
+                    "issues": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "requestId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/v1/auth/register": {
+      "post": {
+        "tags": [
+          "Sessao"
+        ],
+        "summary": "Cria conta e organizacao",
+        "description": "Rota publica: nao exige credencial nem token CSRF.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 120
+                  },
+                  "email": {
+                    "description": "E-mail normalizado (trim + lowercase) antes da unicidade.",
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 12,
+                    "maxLength": 256
+                  },
+                  "organizationName": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 120
+                  },
+                  "timezone": {
+                    "default": "America/Sao_Paulo",
+                    "type": "string",
+                    "description": "Identificador IANA, ex.: America/Sao_Paulo"
+                  },
+                  "acceptedTerms": {
+                    "type": "boolean",
+                    "const": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "email",
+                  "password",
+                  "organizationName",
+                  "acceptedTerms"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "Sessao"
+        ],
+        "summary": "Autentica e abre sessao",
+        "description": "Rota publica: nao exige credencial nem token CSRF.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "description": "E-mail normalizado (trim + lowercase) antes da unicidade.",
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "Sessao"
+        ],
+        "summary": "Encerra a sessao atual",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": [
+          "Sessao"
+        ],
+        "summary": "Identidade, papel, permissoes e token CSRF",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/revoke-sessions": {
+      "post": {
+        "tags": [
+          "Sessao"
+        ],
+        "summary": "Encerra as demais sessoes do usuario",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/password/forgot": {
+      "post": {
+        "tags": [
+          "Sessao"
+        ],
+        "summary": "Solicita recuperacao (resposta uniforme)",
+        "description": "Rota publica: nao exige credencial nem token CSRF.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/auth/password/reset": {
+      "post": {
+        "tags": [
+          "Sessao"
+        ],
+        "summary": "Redefine a senha e derruba sessoes",
+        "description": "Rota publica: nao exige credencial nem token CSRF.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/organization": {
+      "get": {
+        "tags": [
+          "Organizacao"
+        ],
+        "summary": "Dados da organizacao",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `org:read`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Organizacao"
+        ],
+        "summary": "Atualiza a organizacao",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `org:update`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/members": {
+      "get": {
+        "tags": [
+          "Organizacao"
+        ],
+        "summary": "Lista a equipe",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `members:read`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Organizacao"
+        ],
+        "summary": "Convida alguem para a equipe",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `members:manage`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "description": "E-mail normalizado (trim + lowercase) antes da unicidade.",
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 120
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "owner",
+                      "admin",
+                      "content_editor",
+                      "store_operator",
+                      "viewer_finance"
+                    ]
+                  },
+                  "storeIds": {
+                    "default": [],
+                    "maxItems": 200,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    }
+                  }
+                },
+                "required": [
+                  "email",
+                  "name",
+                  "role"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/stores": {
+      "get": {
+        "tags": [
+          "Lojas"
+        ],
+        "summary": "Lista lojas do escopo",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `stores:read`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Lojas"
+        ],
+        "summary": "Cadastra loja com fuso IANA",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `stores:manage`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 120
+                  },
+                  "slug": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 48,
+                    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                  },
+                  "timezone": {
+                    "type": "string",
+                    "description": "Identificador IANA, ex.: America/Sao_Paulo"
+                  },
+                  "city": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "state": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 2,
+                        "maxLength": 2
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "openingHours": {
+                    "default": [],
+                    "description": "Horario de funcionamento local. Fecha o manifesto fora da janela.",
+                    "maxItems": 7,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "weekday": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 6
+                        },
+                        "opensAt": {
+                          "type": "string",
+                          "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                        },
+                        "closesAt": {
+                          "type": "string",
+                          "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                        },
+                        "closed": {
+                          "default": false,
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "weekday",
+                        "opensAt",
+                        "closesAt"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "name",
+                  "timezone"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/stores/{id}": {
+      "delete": {
+        "tags": [
+          "Lojas"
+        ],
+        "summary": "Arquiva a loja (nunca apaga)",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `stores:manage`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/stores/{id}/zones": {
+      "post": {
+        "tags": [
+          "Lojas"
+        ],
+        "summary": "Cria zona de audio",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `zones:manage`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "defaultVolume": {
+                    "default": 80,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/devices/pairing-codes": {
+      "post": {
+        "tags": [
+          "Players"
+        ],
+        "summary": "Emite codigo de uso unico",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `devices:pair`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "storeId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "zoneId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "deviceName": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 80
+                  },
+                  "ttlSeconds": {
+                    "default": 300,
+                    "type": "integer",
+                    "minimum": 60,
+                    "maximum": 1800
+                  }
+                },
+                "required": [
+                  "storeId",
+                  "zoneId",
+                  "deviceName"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/devices/pair": {
+      "post": {
+        "tags": [
+          "Players"
+        ],
+        "summary": "Troca o codigo por credencial de dispositivo",
+        "description": "Rota publica: nao exige credencial nem token CSRF.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "userAgent": {
+                    "type": "string",
+                    "maxLength": 400
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/devices": {
+      "get": {
+        "tags": [
+          "Players"
+        ],
+        "summary": "Lista players com estado real",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `devices:read`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/devices/{id}/revoke": {
+      "post": {
+        "tags": [
+          "Players"
+        ],
+        "summary": "Revoga a credencial do player",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `devices:manage`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/media": {
+      "get": {
+        "tags": [
+          "Midia"
+        ],
+        "summary": "Biblioteca de audio",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `media:read`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/media/uploads": {
+      "post": {
+        "tags": [
+          "Midia"
+        ],
+        "summary": "Abre upload (verifica cota antes)",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `media:upload`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "filename": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "sizeBytes": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 67108864
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "music",
+                      "voice_over",
+                      "jingle",
+                      "operational_notice"
+                    ]
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 160
+                  },
+                  "rightsAttested": {
+                    "type": "boolean",
+                    "const": true
+                  }
+                },
+                "required": [
+                  "filename",
+                  "sizeBytes",
+                  "kind",
+                  "rightsAttested"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/media/uploads/{id}/complete": {
+      "post": {
+        "tags": [
+          "Midia"
+        ],
+        "summary": "Envia os bytes e valida por conteudo",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `media:upload`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/media/{id}/stream-url": {
+      "get": {
+        "tags": [
+          "Midia"
+        ],
+        "summary": "URL assinada de TTL curto",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `media:read`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/announcements": {
+      "get": {
+        "tags": [
+          "Anuncios"
+        ],
+        "summary": "Lista anuncios",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `announcements:read`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Anuncios"
+        ],
+        "summary": "Cria anuncio como rascunho",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `announcements:write`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 160
+                  },
+                  "type": {
+                    "default": "promo_spot",
+                    "type": "string",
+                    "enum": [
+                      "promo_spot",
+                      "operational_notice",
+                      "jingle",
+                      "institutional"
+                    ]
+                  },
+                  "scriptText": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1200
+                  },
+                  "locale": {
+                    "default": "pt-BR",
+                    "type": "string"
+                  },
+                  "pronunciationDictionary": {
+                    "default": [],
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "term": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "pronunciation": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 120
+                        }
+                      },
+                      "required": [
+                        "term",
+                        "pronunciation"
+                      ]
+                    }
+                  },
+                  "mediaAssetId": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "validFrom": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "validUntil": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "storeIds": {
+                    "default": [],
+                    "maxItems": 500,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    }
+                  },
+                  "source": {
+                    "default": "manual",
+                    "type": "string",
+                    "enum": [
+                      "manual",
+                      "template"
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "scriptText"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/announcements/{id}/actions": {
+      "post": {
+        "tags": [
+          "Anuncios"
+        ],
+        "summary": "Aplica ACAO na maquina de estados",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `announcements:write`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/announcements/templates": {
+      "get": {
+        "tags": [
+          "Anuncios"
+        ],
+        "summary": "Modelos prontos (sem IA)",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `announcements:read`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/playlists": {
+      "get": {
+        "tags": [
+          "Programacao"
+        ],
+        "summary": "Lista playlists",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `playlists:read`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Programacao"
+        ],
+        "summary": "Cria playlist com regras de rotacao",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `playlists:write`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 120
+                  },
+                  "description": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 0,
+                        "maxLength": 400
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "rotationRules": {
+                    "type": "object",
+                    "properties": {
+                      "insertionMode": {
+                        "default": "every_n_tracks",
+                        "type": "string",
+                        "enum": [
+                          "every_n_tracks",
+                          "every_n_minutes"
+                        ]
+                      },
+                      "everyNTracks": {
+                        "default": 3,
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 50
+                      },
+                      "everyNMinutes": {
+                        "default": 15,
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 240
+                      },
+                      "spotsPerBreak": {
+                        "default": 1,
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 5
+                      },
+                      "musicOrder": {
+                        "default": "shuffle",
+                        "type": "string",
+                        "enum": [
+                          "sequential",
+                          "shuffle"
+                        ]
+                      },
+                      "maxSpotPlaysPerHour": {
+                        "default": 6,
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 60
+                      },
+                      "avoidBackToBackSameSpot": {
+                        "default": true,
+                        "type": "boolean"
+                      },
+                      "quietWindows": {
+                        "default": [],
+                        "maxItems": 12,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "from": {
+                              "type": "string",
+                              "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                            },
+                            "to": {
+                              "type": "string",
+                              "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 60
+                            }
+                          },
+                          "required": [
+                            "from",
+                            "to"
+                          ]
+                        }
+                      },
+                      "shuffleSeed": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/playlists/{id}/preview": {
+      "get": {
+        "tags": [
+          "Programacao"
+        ],
+        "summary": "Previa pelo motor real de rotacao",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `playlists:read`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/schedules": {
+      "post": {
+        "tags": [
+          "Programacao"
+        ],
+        "summary": "Cria janela recorrente (hora local)",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `schedules:write`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 120
+                  },
+                  "storeId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "zoneId": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "playlistId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "weekdays": {
+                    "minItems": 1,
+                    "maxItems": 7,
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 6
+                    }
+                  },
+                  "startLocalTime": {
+                    "type": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "endLocalTime": {
+                    "type": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "effectiveFrom": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "date",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "effectiveUntil": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "date",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "priority": {
+                    "default": 0,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "enabled": {
+                    "default": true,
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "name",
+                  "storeId",
+                  "playlistId",
+                  "weekdays",
+                  "startLocalTime",
+                  "endLocalTime"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/schedules/calendar": {
+      "get": {
+        "tags": [
+          "Programacao"
+        ],
+        "summary": "Grade resolvida, dia a dia",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `schedules:read`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/schedules/now": {
+      "get": {
+        "tags": [
+          "Programacao"
+        ],
+        "summary": "O que toca agora e ate quando",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `schedules:read`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/campaigns": {
+      "post": {
+        "tags": [
+          "Programacao"
+        ],
+        "summary": "Cria campanha com vigencia",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `campaigns:write`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 140
+                  },
+                  "objective": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 0,
+                        "maxLength": 300
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "startsAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                  },
+                  "endsAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                  },
+                  "storeIds": {
+                    "minItems": 1,
+                    "maxItems": 500,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    }
+                  },
+                  "announcementIds": {
+                    "default": [],
+                    "maxItems": 200,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    }
+                  },
+                  "priority": {
+                    "default": 10,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "maxPlaysPerDayPerStore": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "startsAt",
+                  "endsAt",
+                  "storeIds"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/player/manifest": {
+      "get": {
+        "tags": [
+          "Player"
+        ],
+        "summary": "Manifesto de reproducao assinado",
+        "description": "Autenticado por Bearer de dispositivo. Credencial de player NAO abre rota administrativa.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "deviceToken": []
+          }
+        ]
+      }
+    },
+    "/api/v1/player/heartbeat": {
+      "post": {
+        "tags": [
+          "Player"
+        ],
+        "summary": "Sinal de vida do dispositivo",
+        "description": "Autenticado por Bearer de dispositivo. Credencial de player NAO abre rota administrativa.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "appVersion": {
+                    "type": "string",
+                    "maxLength": 40
+                  },
+                  "manifestRevision": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 80
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "currentSlotId": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 120
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "bufferDepth": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000
+                  },
+                  "cachedItems": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                  },
+                  "cachedBytes": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "online": {
+                    "default": true,
+                    "type": "boolean"
+                  },
+                  "lastErrorCode": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 60
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "pendingEvents": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "deviceToken": []
+          }
+        ]
+      }
+    },
+    "/api/v1/player/events": {
+      "post": {
+        "tags": [
+          "Player"
+        ],
+        "summary": "Lote de eventos idempotentes",
+        "description": "Autenticado por Bearer de dispositivo. Credencial de player NAO abre rota administrativa.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "events": {
+                    "minItems": 1,
+                    "maxItems": 500,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "eventId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "slotId": {
+                          "type": "string",
+                          "maxLength": 120
+                        },
+                        "mediaAssetId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "announcementVersionId": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "campaignId": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "eventType": {
+                          "type": "string",
+                          "enum": [
+                            "started",
+                            "completed",
+                            "failed",
+                            "skipped"
+                          ]
+                        },
+                        "occurredAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                        },
+                        "playedMs": {
+                          "default": 0,
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 86400000
+                        },
+                        "errorCode": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "maxLength": 60
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "eventId",
+                        "slotId",
+                        "mediaAssetId",
+                        "eventType",
+                        "occurredAt"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "events"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "deviceToken": []
+          }
+        ]
+      }
+    },
+    "/api/v1/analytics/overview": {
+      "get": {
+        "tags": [
+          "Relatorios"
+        ],
+        "summary": "Metricas agregadas do periodo",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `analytics:read`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/analytics/export.csv": {
+      "get": {
+        "tags": [
+          "Relatorios"
+        ],
+        "summary": "Exportacao CSV com escape seguro",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `analytics:export`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/billing/plans": {
+      "get": {
+        "tags": [
+          "Plano"
+        ],
+        "summary": "Catalogo de planos",
+        "description": "Rota publica: nao exige credencial nem token CSRF.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/billing/subscription": {
+      "get": {
+        "tags": [
+          "Plano"
+        ],
+        "summary": "Assinatura e medidores",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `billing:read`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/billing/checkout": {
+      "post": {
+        "tags": [
+          "Plano"
+        ],
+        "summary": "Checkout (503 sem gateway)",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `billing:manage`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/ai/status": {
+      "get": {
+        "tags": [
+          "IA"
+        ],
+        "summary": "Estado dos provedores de IA",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `announcements:read`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/ai/copy": {
+      "post": {
+        "tags": [
+          "IA"
+        ],
+        "summary": "Gera roteiro (503 sem provedor)",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `ai:generate`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/status/integrations": {
+      "get": {
+        "tags": [
+          "Operacao"
+        ],
+        "summary": "Estado das dependencias",
+        "description": "Rota publica: nao exige credencial nem token CSRF.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/audit": {
+      "get": {
+        "tags": [
+          "Operacao"
+        ],
+        "summary": "Trilha da propria organizacao",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `audit:read`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/jumpers/overview": {
+      "get": {
+        "tags": [
+          "Jumpers"
+        ],
+        "summary": "Operacao Jumpers (404 para cliente)",
+        "description": "Exige cookie de sessao. Metodos mutaveis exigem o cabecalho `x-csrf-token`. Permissao: `plataforma`. Recurso de outra organizacao responde **404**, nunca 403 — nao confirmamos a existencia.",
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "401": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "403": {
+            "$ref": "#/components/responses/Erro"
+          },
+          "404": {
+            "$ref": "#/components/responses/Erro"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    }
+  }
+}

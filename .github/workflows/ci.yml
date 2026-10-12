@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Cancela execucoes antigas do mesmo branch: o que importa e o ultimo commit.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verificacao
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      # `npm ci` respeita o lockfile; `npm install` poderia atualizar versoes
+      # e fazer a CI testar um conjunto diferente do que roda em producao.
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      # BOM, zero-width e override bidi passam despercebidos em code review.
+      - name: Caracteres invisiveis
+        run: npm run check:invisible
+
+      # Os testes de integracao sobem PostgreSQL embarcado (PGlite): nenhum
+      # servico de CI e necessario, e o SQL exercitado e o mesmo de producao.
+      - name: Testes
+        run: npm test
+
+      # O OpenAPI e derivado dos schemas: se um mudou e o documento nao foi
+      # regerado, especificacao e validacao ja divergiram.
+      - name: OpenAPI em dia
+        run: npm run openapi:check
+
+      - name: Build de producao
+        run: npm run build
+
+      - name: Guarda contra segredo no diff
+        run: |
+          if git grep -nIE '(SESSION_SECRET|MEDIA_URL_SECRET|S3_SECRET_ACCESS_KEY)[[:space:]]*=[[:space:]]*[A-Za-z0-9+/]{16,}' -- ':!.env.example' ':!docs'; then
+            echo "::error::Possivel segredo commitado."
+            exit 1
+          fi
+          echo "nenhum segredo aparente no diff"

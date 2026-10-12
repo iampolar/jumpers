@@ -25,10 +25,11 @@
     "db:migrate": "tsx packages/db/src/cli/migrate.ts",
     "db:reset": "tsx packages/db/src/cli/migrate.ts --reset",
     "db:seed": "tsx packages/db/src/cli/seed.ts",
-    "openapi": "npm run openapi -w @castwave/api",
+    "openapi": "tsx apps/api/src/cli/emit-openapi.ts",
     "verify": "npm run typecheck && npm run lint && npm run check:invisible && npm run test",
     "db:status": "tsx packages/db/src/cli/migrate.ts --status",
-    "check:invisible": "node scripts/check-invisible.mjs ."
+    "check:invisible": "node scripts/check-invisible.mjs .",
+    "openapi:check": "npm run openapi && git diff --exit-code --quiet docs/openapi.json || (echo \"docs/openapi.json desatualizado: rode npm run openapi e commite\" && exit 1)"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
