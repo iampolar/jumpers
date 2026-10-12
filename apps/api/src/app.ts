@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
@@ -10,6 +11,11 @@ import { migrate, type SqlClient } from '@castwave/db';
 import type { AppConfig } from '@castwave/runtime';
 import { buildHealthReport, describeIntegrations } from './health.js';
 import { createLogger, type Logger } from '@castwave/runtime';
+import { createAuditWriter } from './audit.js';
+import { registerAuthentication } from './http/authenticate.js';
+import type { AppServices } from './http/context.js';
+import { registerAuthRoutes } from './modules/auth/routes.js';
+import { registerDomainRoutes } from './routes.js';
 import { createStorage, type LocalObjectStorage } from './storage.js';
 
 export interface AppDependencies {
@@ -25,6 +31,7 @@ export interface CastWaveApp {
   readonly db: SqlClient;
   readonly logger: Logger;
   readonly storage: LocalObjectStorage;
+  readonly services: AppServices;
 }
 
 export const API_VERSION = '0.1.0';
@@ -111,6 +118,12 @@ export async function buildApp(deps: AppDependencies): Promise<CastWaveApp> {
       }),
     });
   }
+
+  await server.register(cookie, {
+    // Nao assinamos o cookie: o valor ja e um token opaco de 256 bits cujo
+    // hash vive no banco. Assinar adicionaria um segredo a girar sem ganho.
+    parseOptions: { httpOnly: true, sameSite: 'lax', path: '/' },
+  });
 
   // -------------------------------------------------------------------------
   // Correlacao e log de requisicao
@@ -233,7 +246,15 @@ export async function buildApp(deps: AppDependencies): Promise<CastWaveApp> {
     integrations: describeIntegrations(config),
   }));
 
-  return { server, config, db, logger, storage };
+  const services: AppServices = { db, config, storage, audit: createAuditWriter(db) };
+
+  // A autenticacao roda como hook global: nenhuma rota pode "esquecer" de
+  // exigir credencial, porque a lista de excecoes e explicita e fechada.
+  registerAuthentication(server, services);
+  registerAuthRoutes(server, services);
+  registerDomainRoutes(server, services);
+
+  return { server, config, db, logger, storage, services };
 }
 
 /** Aplica migrations pendentes no boot, fora de producao. */
