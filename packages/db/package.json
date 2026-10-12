@@ -1,0 +1,21 @@
+{
+  "name": "@castwave/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": { ".": "./src/index.ts", "./migrations": "./src/migrations/index.ts" },
+  "scripts": {
+    "db:migrate": "tsx src/cli/migrate.ts",
+    "db:reset": "tsx src/cli/migrate.ts --reset",
+    "db:seed": "tsx src/cli/seed.ts"
+  },
+  "dependencies": {
+    "@castwave/contracts": "0.1.0",
+    "@castwave/core": "0.1.0",
+    "@electric-sql/pglite": "0.5.9",
+    "pg": "8.23.1"
+  },
+  "devDependencies": { "@types/pg": "8.23.1", "tsx": "4.23.15" }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "@castwave/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/main.ts",
+  "scripts": {
+    "dev": "tsx watch --clear-screen=false src/main.ts",
+    "start": "tsx src/main.ts"
+  },
+  "dependencies": {
+    "@castwave/contracts": "0.1.0",
+    "@castwave/core": "0.1.0",
+    "@castwave/db": "0.1.0",
+    "@castwave/runtime": "0.1.0"
+  },
+  "devDependencies": {
+    "tsx": "4.23.15"
+  }
+}

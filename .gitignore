@@ -1,0 +1,25 @@
+node_modules/
+dist/
+.next/
+out/
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
+coverage/
+.vitest/
+.data/
+storage/
+.DS_Store
+Thumbs.db
+*.log
+playwright-report/
+test-results/
+.scratch/
+
+# Artefatos de compilacao nunca pertencem a src/: se aparecerem ali, foi
+# build com tsconfig em estado transitorio. Ignorar evita commitar por engano.
+**/src/**/*.js
+**/src/**/*.js.map
+**/src/**/*.d.ts
+**/src/**/*.d.ts.map

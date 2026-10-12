@@ -1,0 +1,78 @@
+@import 'tailwindcss';
+
+/**
+ * Sistema de design CastWave.
+ *
+ * Tokens como variaveis CSS, nao como classes utilitarias espalhadas: trocar
+ * a marca-mae ou lancar um tema claro e editar este bloco, nao varrer o
+ * codigo. Os valores vem da direcao visual do blueprint (secao 3.2).
+ */
+@theme {
+  --color-ink: #070a12;
+  --color-surface: #101522;
+  --color-elevated: #171d2b;
+  --color-line: #1f2838;
+
+  --color-cyan: #16d9e8;
+  --color-blue: #3977ff;
+  --color-violet: #7c5cff;
+
+  --color-text: #f5f7fb;
+  --color-muted: #98a2b3;
+
+  --color-success: #36c98f;
+  --color-warning: #f5b942;
+  --color-danger: #f06472;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: var(--color-ink);
+  color: var(--color-text);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/*
+ * Foco sempre visivel. O anel e desenhado com outline (nao box-shadow) para
+ * sobreviver a qualquer contexto de empilhamento, e so aparece em navegacao
+ * por teclado -- WCAG 2.2, criterio 2.4.11.
+ */
+:focus-visible {
+  outline: 2px solid var(--color-cyan);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Numero em tabela e metrica alinha pela coluna, nao pela largura do glifo. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* Respeita quem pediu menos movimento no sistema operacional. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-cyan) 30%, transparent);
+}

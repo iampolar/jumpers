@@ -1,0 +1,48 @@
+{
+  "name": "castwave",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "JUMPERS CastWave — central de sonorizacao comercial para redes de lojas fisicas",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:api": "npm run dev -w @castwave/api",
+    "dev:web": "npm run dev -w @castwave/web",
+    "dev:worker": "npm run dev -w @castwave/worker",
+    "build": "npm run build -w @castwave/api && npm run build -w @castwave/web",
+    "typecheck": "tsc -b --pretty tsconfig.build.json",
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:migrate": "tsx packages/db/src/cli/migrate.ts",
+    "db:reset": "tsx packages/db/src/cli/migrate.ts --reset",
+    "db:seed": "tsx packages/db/src/cli/seed.ts",
+    "openapi": "npm run openapi -w @castwave/api",
+    "verify": "npm run typecheck && npm run lint && npm run check:invisible && npm run test",
+    "db:status": "tsx packages/db/src/cli/migrate.ts --status",
+    "check:invisible": "node scripts/check-invisible.mjs ."
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "24.19.2",
+    "@vitest/coverage-v8": "5.0.4",
+    "eslint": "10.12.0",
+    "eslint-plugin-import-x": "4.17.1",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.71.2",
+    "vitest": "5.0.4"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "esbuild@0.27.7": true,
+    "unrs-resolver@1.12.2": true
+  }
+}
