@@ -1,65 +1,76 @@
 /**
- * Marca CastWave: coelho geometrico unido a ondas sonoras.
+ * Marca JUMPERS · CastWave.
  *
- * Desenhado como SVG proprio, nao como PNG da logo original: aquele arquivo e
- * escuro sobre claro e vira um borrao abaixo de ~48 px. Aqui as formas sao
- * primitivas grandes -- duas orelhas, uma cabeca, tres arcos -- justamente
- * para sobreviver ao favicon de 16 px, que e onde a maioria das marcas morre.
+ * Os caminhos abaixo sao VETORIZADOS do PNG original (potrace sobre mascaras
+ * separadas por matiz), nao desenhados a mao. A primeira tentativa foi
+ * redesenhar o coelho com bezier escrita de cabeca, e o resultado nao parecia
+ * um coelho -- a silhueta e organica demais para isso. Tracar o arquivo real
+ * da fidelidade por construcao.
  *
- * A silhueta herda `currentColor`; so as ondas tem cor propria. Assim a mesma
- * marca funciona no menu escuro, numa impressao em preto e branco e no modo
- * de alto contraste do sistema.
+ * Tres camadas, nesta ordem de pintura:
+ *   1. base colorida  -- todas as ondas e a orelha, em azul -> violeta;
+ *   2. ciano          -- por cima, a orelha e o arco externo;
+ *   3. silhueta       -- o coelho, em `currentColor`.
  *
- * Silhueta, nao mascote: sem olho redondo, sem focinho, sem sorriso.
+ * A base vem inteira por baixo de proposito: tracar ciano e azul como regioes
+ * vizinhas deixava uma costura serrilhada na fronteira, porque o
+ * anti-aliasing do PNG mistura as cores pixel a pixel. Com a base solida
+ * embaixo, a unica aresta visivel e a do ciano -- e ela e limpa.
+ *
+ * A silhueta herdar `currentColor` e o que faz a MESMA marca funcionar no
+ * menu escuro, no cartao claro e na impressao em preto e branco.
  */
+
+const VIEW_BOX = '0 0 425 315';
+const RAZAO = 1.3492;
 
 export function CastWaveMark({ size = 32, className }: { size?: number; className?: string }) {
   return (
     <svg
-      width={size}
       height={size}
-      viewBox="0 0 32 32"
+      width={Math.round(size * RAZAO)}
+      viewBox={VIEW_BOX}
       fill="none"
       className={className}
       role="img"
       aria-label="CastWave"
     >
       <defs>
-        <linearGradient id="cw-wave" x1="1" y1="24" x2="13" y2="9" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#16D9E8" />
-          <stop offset="0.5" stopColor="#3977FF" />
+        {/* Arcos internos: azul da marca virando violeta, como no original. */}
+        <linearGradient
+          id="cw-base"
+          x1="21"
+          y1="315"
+          x2="191"
+          y2="63"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#3977FF" />
           <stop offset="1" stopColor="#7C5CFF" />
+        </linearGradient>
+        {/* Orelha e arco externo: ciano, mais profundo na base. */}
+        <linearGradient
+          id="cw-ciano"
+          x1="43"
+          y1="315"
+          x2="234"
+          y2="0"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#16A9C4" />
+          <stop offset="0.45" stopColor="#16D9E8" />
+          <stop offset="1" stopColor="#3BE8F0" />
         </linearGradient>
       </defs>
 
-      {/*
-        Ondas: tres arcos concentricos abrindo para a esquerda, peso
-        decrescente. Sao o unico elemento colorido -- a parte que diz "audio".
-      */}
-      <path d="M4.2 9.5a13 13 0 0 0 0 13" stroke="url(#cw-wave)" strokeWidth="2.6" strokeLinecap="round" />
-      <path d="M8.8 12.4a7.6 7.6 0 0 0 0 7.2" stroke="url(#cw-wave)" strokeWidth="2.4" strokeLinecap="round" />
-      <path d="M13.2 14.8a3.2 3.2 0 0 0 0 2.4" stroke="url(#cw-wave)" strokeWidth="2.2" strokeLinecap="round" />
-
-      {/*
-        Orelhas: duas capsulas inclinadas, com angulos diferentes para dar
-        atencao em vez de simetria morta. Desenhadas como traco grosso com
-        ponta arredondada -- mais robusto em tamanho pequeno que um poligono.
-      */}
-      <path d="M20.4 12.2 18.6 4.1" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" />
-      <path d="M24.1 12.6 25.2 5.4" stroke="currentColor" strokeWidth="3.1" strokeLinecap="round" />
-
-      {/*
-        Cabeca: massa unica arredondada, levemente alongada para a direita,
-        onde ficaria o focinho. Fecha a silhueta sem precisar de detalhe.
-      */}
-      <path
-        d="M22.1 11.4c3.8 0 6.9 2.6 6.9 6.3 0 3.1-1.8 5.4-4.6 6.4l-4.6 1.7c-1 .4-2-.4-2-1.4v-3.1c-1.9-1-3.1-2.6-3.1-4.6 0-3.4 3.3-5.3 7.4-5.3Z"
-        fill="currentColor"
-      />
+      <path d="M 62.500 5.959 C 105.301 50.213, 130.139 65.694, 188.500 84.494 C 217.214 93.744, 232.263 99.634, 252.088 109.381 C 260.243 113.391, 266.678 116.288, 266.388 115.819 C 266.099 115.351, 257.992 108.183, 248.375 99.892 C 216.576 72.479, 193.194 48.289, 182.165 31.397 L 177.500 24.251 162.500 19.187 C 131.759 8.808, 96.698 1.770, 68.769 0.370 L 56.500 -0.244 62.500 5.959 M 27.911 119.750 C -12.476 174.314, -7.914 249.720, 38.986 302.802 C 49.045 314.186, 48.680 314.002, 61.184 313.990 C 71.484 313.980, 71.512 313.973, 79 309.709 C 88.101 304.526, 88.090 304.677, 79.880 297.711 C 32.148 257.217, 21.493 191.032, 54.419 139.560 C 56.388 136.481, 58 133.782, 58 133.564 C 58 132.931, 33.099 115, 32.220 115 C 31.784 115, 29.845 117.138, 27.911 119.750 M 82.857 159.252 C 62.554 191.886, 64.856 233.634, 88.832 267.602 C 94.041 274.983, 108.608 290, 110.557 290 C 113.190 290, 134.011 273.674, 133.987 271.629 C 133.980 271.008, 131 267.575, 127.364 264 C 101.932 238.990, 94.317 203.236, 108.767 176.687 C 110.996 172.592, 111.186 171.680, 109.960 170.974 C 109.157 170.512, 103.775 166.739, 98 162.589 C 85.648 153.713, 86.224 153.840, 82.857 159.252" fill="url(#cw-base)" />
+      <path d="M 62.500 5.959 C 105.301 50.213, 130.139 65.694, 188.500 84.494 C 217.254 93.757, 232.208 99.612, 252.380 109.508 L 267.500 116.925 262.842 112.713 C 260.281 110.396, 252.911 104.022, 246.465 98.549 C 220.556 76.551, 192.548 47.300, 182.165 31.397 L 177.500 24.251 162.500 19.187 C 131.759 8.808, 96.698 1.770, 68.769 0.370 L 56.500 -0.244 62.500 5.959 M 27.911 119.750 C -12.476 174.314, -7.914 249.720, 38.986 302.802 C 49.089 314.236, 48.340 313.878, 61.524 313.580 C 73.082 313.318, 76 312.676, 76 310.393 C 76 309.627, 76.477 309, 77.059 309 C 77.641 309, 77.827 309.563, 77.472 310.250 C 77.117 310.938, 77.704 310.423, 78.776 309.106 C 79.848 307.790, 81.190 307, 81.759 307.351 C 83.245 308.269, 87.474 304.575, 86.584 303.135 C 86.180 302.482, 85.096 302.071, 84.175 302.223 C 83.254 302.376, 82.603 301.967, 82.728 301.316 C 82.939 300.221, 75.764 293.777, 74.890 294.277 C 74.675 294.400, 74.591 294.334, 74.701 294.132 C 74.812 293.930, 71.825 290.272, 68.063 286.003 C 29.629 242.386, 24.418 186.459, 54.419 139.560 C 56.388 136.481, 58 133.782, 58 133.564 C 58 132.931, 33.099 115, 32.220 115 C 31.784 115, 29.845 117.138, 27.911 119.750 M 84.449 156.750 C 84.029 157.713, 83.786 159.108, 83.909 159.850 C 84.033 160.593, 83.685 160.923, 83.136 160.584 C 82.587 160.245, 81.849 160.436, 81.495 161.008 C 81.141 161.581, 81.391 161.926, 82.051 161.775 C 82.710 161.624, 83.450 162.043, 83.694 162.706 C 83.972 163.462, 83.388 163.767, 82.126 163.524 C 80.621 163.234, 80.269 163.538, 80.728 164.733 C 81.167 165.877, 80.966 166.097, 80.015 165.510 C 79.128 164.961, 78.930 165.077, 79.415 165.862 C 79.813 166.506, 80.523 166.795, 80.993 166.504 C 81.464 166.213, 82.055 166.769, 82.308 167.738 C 82.737 169.382, 82.776 169.378, 82.884 167.691 C 82.948 166.696, 83.450 166.160, 84 166.500 C 84.550 166.840, 85 166.361, 85 165.437 C 85 163.983, 85.229 163.941, 86.692 165.128 C 87.623 165.882, 88.077 165.988, 87.703 165.363 C 87.328 164.738, 87.692 163.671, 88.511 162.991 C 89.330 162.311, 90 162.105, 90 162.533 C 90 162.960, 90.891 162.504, 91.979 161.519 C 93.779 159.890, 94.015 159.876, 94.584 161.358 C 94.928 162.255, 95.612 162.740, 96.105 162.435 C 96.597 162.131, 97 162.756, 97 163.824 C 97 164.958, 96.124 165.996, 94.895 166.317 C 92.517 166.939, 92.754 169.200, 95.235 169.564 C 96.269 169.716, 96.666 169.292, 96.324 168.401 C 95.423 166.054, 96.997 166.841, 98.021 169.250 C 98.790 171.058, 98.882 170.757, 98.489 167.715 C 97.994 163.884, 101.158 163.641, 102.600 167.399 C 102.867 168.096, 103.789 168.667, 104.648 168.667 C 106.407 168.667, 105.182 167.614, 95.500 160.805 C 92.200 158.485, 90.059 157.283, 90.741 158.135 C 92.088 159.816, 91.482 161, 89.274 161 C 88.509 161, 88.160 160.550, 88.500 160 C 88.840 159.450, 88.529 158.993, 87.809 158.985 C 86.782 158.973, 86.796 158.782, 87.878 158.096 C 89.451 157.100, 88.549 155, 86.548 155 C 85.814 155, 84.870 155.787, 84.449 156.750 M 90.500 185.115 C 88.779 185.900, 88.870 185.978, 91.159 185.670 C 95.300 185.113, 93.523 187.674, 89.181 188.521 C 86.109 189.120, 85.831 189.364, 87.500 189.994 C 88.600 190.410, 89.788 190.585, 90.141 190.383 C 91.102 189.834, 94.005 194.662, 93.198 195.469 C 92.489 196.177, 92.373 196.629, 92.093 199.750 C 91.944 201.417, 91.873 201.417, 90.608 199.750 C 89.098 197.761, 87.470 197.342, 88.665 199.250 C 89.095 199.938, 89.503 200.950, 89.571 201.500 C 89.640 202.050, 89.764 203.089, 89.848 203.809 C 89.931 204.529, 90.437 204.848, 90.971 204.518 C 91.505 204.188, 92.228 205.062, 92.579 206.459 C 93.771 211.207, 96.238 208.439, 96.345 202.234 C 96.401 199.037, 98.487 198.105, 98.513 201.266 C 98.520 202.142, 98.922 203.228, 99.406 203.679 C 99.911 204.149, 100.006 203.025, 99.629 201.050 C 99.266 199.152, 98.414 197.246, 97.735 196.815 C 97.056 196.384, 96.950 196.017, 97.500 196 C 98.050 195.983, 97.851 195.558, 97.057 195.056 C 95.962 194.364, 95.855 193.583, 96.615 191.822 C 98.933 186.446, 95.597 182.787, 90.500 185.115 M 69.170 207.500 C 69.151 213.380, 69.439 215.807, 70 214.500 C 70.756 212.741, 70.868 212.838, 70.930 215.309 C 70.968 216.854, 70.614 217.879, 70.142 217.588 C 69.670 217.296, 69.681 219.407, 70.168 222.279 C 71.879 232.380, 73.196 236.936, 74.342 236.719 C 75.006 236.593, 75.481 237.707, 75.454 239.331 C 75.413 241.891, 75.533 241.992, 76.704 240.390 C 77.592 239.175, 78 239.045, 78 239.976 C 78 240.722, 78.289 241.044, 78.643 240.691 C 78.996 240.337, 78.700 239.343, 77.985 238.482 C 77.063 237.372, 76.996 236.604, 77.752 235.848 C 79.494 234.106, 75.948 225.296, 73.991 226.505 C 72.857 227.207, 72.049 224.538, 72.953 223.075 C 73.515 222.166, 73.911 222.325, 74.428 223.666 C 75.095 225.398, 75.189 225.403, 76.117 223.750 C 76.657 222.787, 77.677 222, 78.383 222 C 79.089 222, 79.667 221.400, 79.667 220.667 C 79.667 219.869, 78.528 219.333, 76.833 219.333 C 75.275 219.333, 74 219.708, 74 220.167 C 74 221.955, 72.417 220.884, 72.275 219 C 72.192 217.900, 72.482 217, 72.920 217 C 73.358 217, 73.615 215.211, 73.492 213.024 C 73.369 210.837, 73.592 209.248, 73.989 209.493 C 74.386 209.739, 74.509 208.881, 74.261 207.587 C 74.014 206.293, 74.304 204.930, 74.906 204.558 C 76.462 203.596, 76.261 202, 74.583 202 C 73.804 202, 72.954 201.438, 72.695 200.750 C 72.436 200.063, 72.286 202.313, 72.362 205.751 C 72.438 209.189, 72.162 212.002, 71.750 212.001 C 71.338 212.001, 70.955 210.088, 70.900 207.750 C 70.688 198.699, 69.199 198.484, 69.170 207.500 M 76.541 242.934 C 75.789 244.150, 78.929 252, 80.168 252 C 80.690 252, 80.833 252.563, 80.485 253.250 C 80.137 253.938, 80.560 253.626, 81.426 252.559 C 83.108 250.484, 83.556 248.538, 82.151 249.407 C 81.684 249.696, 80.708 248.822, 79.982 247.466 C 79.256 246.110, 78.302 245, 77.862 245 C 77.423 245, 77.322 244.325, 77.638 243.500 C 78.269 241.856, 77.464 241.441, 76.541 242.934" fill="url(#cw-ciano)" />
+      <path d="M 178.827 26.677 C 188.707 45.138, 243.129 99.046, 274.751 121.694 C 279.507 125.101, 286.739 130.726, 290.822 134.194 L 298.244 140.500 292.119 141.390 C 284.646 142.476, 283.823 142.188, 254.500 128.228 C 208.161 106.168, 176.571 96.263, 138.500 91.854 C 112.642 88.860, 44.854 91.532, 49.083 95.379 C 50.761 96.905, 84.257 118.692, 91.329 122.857 C 124.002 142.100, 146.224 147.936, 198.500 151.005 C 228.436 152.763, 239.154 154.977, 253.907 162.453 C 256.842 163.940, 258.851 165.494, 258.372 165.905 C 257.892 166.317, 254.350 168.857, 250.500 171.551 C 232.690 184.010, 222.515 196.087, 195.781 236.500 C 169.464 276.283, 155.073 292.353, 132.792 306.839 C 128.002 309.952, 124.065 312.837, 124.042 313.250 C 124.019 313.663, 137.387 313.996, 153.750 313.991 C 230.591 313.969, 250.802 306.855, 286.950 267.110 C 307.826 244.156, 316.368 241.901, 359.520 247.951 C 403.399 254.103, 400.586 254.868, 417.859 232.079 C 428.735 217.731, 428.979 218.901, 408.898 189.002 C 387.381 156.963, 385.056 154.831, 344.252 129.714 C 313.507 110.789, 298.316 100.296, 268.500 77.388 C 234.236 51.062, 220.205 42.389, 193 30.716 C 178.895 24.665, 177.544 24.280, 178.827 26.677 M 343.137 171.765 C 359.189 192.285, 363.453 195.451, 376.371 196.443 L 385.241 197.124 381.452 190.312 C 379.368 186.565, 377.207 182.755, 376.650 181.844 C 376.058 180.878, 370.614 178.685, 363.568 176.576 C 356.931 174.588, 349.313 172.302, 346.640 171.496 C 342.056 170.113, 341.857 170.128, 343.137 171.765 M 128.690 189.290 C 120.462 206.902, 126.517 232.627, 142.703 248.829 C 149.086 255.218, 148.898 255.256, 156.747 245.926 C 164.098 237.187, 163.972 237.818, 159.385 232.741 C 153.133 225.821, 150.543 218.864, 150.361 208.508 L 150.204 199.516 140.197 192.798 L 130.190 186.080 128.690 189.290" fill="currentColor" />
     </svg>
   );
 }
 
+/** Assinatura horizontal: menu lateral e barra superior, onde a altura e curta. */
 export function CastWaveWordmark({ className }: { className?: string }) {
   return (
     <span className={className}>
@@ -70,11 +81,29 @@ export function CastWaveWordmark({ className }: { className?: string }) {
   );
 }
 
-export function CastWaveLockup({ size = 32 }: { size?: number }) {
+export function CastWaveLockup({ size = 26 }: { size?: number }) {
   return (
     <span className="inline-flex items-center gap-2.5">
       <CastWaveMark size={size} className="text-text" />
       <CastWaveWordmark className="text-[15px]" />
     </span>
+  );
+}
+
+/**
+ * Assinatura vertical, na proporcao do logo original: simbolo acima, JUMPERS
+ * em caixa alta e CastWave em ciano embaixo. Para as telas de marca -- entrada
+ * e pagina inicial -- onde ha espaco para ela respirar.
+ */
+export function CastWaveStacked({ size = 72 }: { size?: number }) {
+  return (
+    <div className="flex flex-col items-center">
+      <CastWaveMark size={size} className="text-text" />
+      <div className="mt-3 flex flex-col items-center leading-none">
+        {/* Peso alto e espacamento largo reproduzem o wordmark original. */}
+        <span className="text-[22px] font-bold tracking-[0.14em] text-text">JUMPERS</span>
+        <span className="mt-1.5 text-[17px] font-semibold tracking-tight text-cyan">CastWave</span>
+      </div>
+    </div>
   );
 }

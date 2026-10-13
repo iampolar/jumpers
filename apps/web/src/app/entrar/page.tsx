@@ -3,7 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { SessionContext } from '@castwave/contracts';
-import { CastWaveMark } from '@/components/brand';
+import { CastWaveStacked } from '@/components/brand';
+import { DotGridWave } from '@/components/dot-grid-wave';
 import { Alert, Button, Field, Input } from '@/components/ui';
 import { api, ApiError, setCsrfToken } from '@/lib/api';
 
@@ -57,21 +58,34 @@ export default function EntrarPage() {
 
   return (
     <div className="relative isolate flex min-h-dvh items-center justify-center overflow-hidden px-6 py-12">
+      {/*
+        Duas camadas de fundo, ambas decorativas:
+        a malha de pontos da textura, o brilho radial puxa o olho para o
+        centro, onde esta o formulario.
+      */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <DotGridWave
+          angle={72}
+          waveScale={3}
+          waveSpeed={0.3}
+          spacing={24}
+          dotSize={1.9}
+          mouse={0.7}
+          pulse={0.95}
+          pulseInterval={2.2}
+          opacity={0.85}
+        />
+      </div>
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-52 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full opacity-[0.13] blur-3xl"
+        className="pointer-events-none absolute -top-52 left-1/2 -z-10 h-[520px] w-[900px] -translate-x-1/2 rounded-full opacity-[0.16] blur-3xl"
         style={{ background: 'radial-gradient(circle, #16D9E8 0%, #3977FF 45%, transparent 70%)' }}
       />
 
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-sm rounded-2xl border border-line/60 bg-surface/80 p-7 shadow-2xl backdrop-blur-xl">
         <div className="mb-8 flex flex-col items-center text-center">
-          <CastWaveMark size={40} className="text-text" />
-          <h1 className="mt-4 text-lg font-semibold tracking-tight">
-            <span className="text-text">JUMPERS</span>
-            <span className="mx-1.5 text-muted/40">/</span>
-            <span className="text-cyan">CastWave</span>
-          </h1>
-          <p className="mt-1.5 text-[13px] text-muted">A central de audio das suas lojas.</p>
+          <CastWaveStacked size={64} />
+          <p className="mt-4 text-[13px] text-muted">A central de audio das suas lojas.</p>
         </div>
 
         <div className="mb-5 grid grid-cols-2 gap-1 rounded-lg border border-line bg-surface p-1">

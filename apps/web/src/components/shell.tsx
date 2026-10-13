@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import type { Permission } from '@castwave/contracts';
 import { CastWaveMark } from './brand';
+import { DotGridWave } from './dot-grid-wave';
 import { cn, Spinner } from './ui';
 import { useSession } from '@/lib/session';
 
@@ -113,8 +114,27 @@ export function ConsoleShell({ children }: { children: ReactNode }) {
   if (!session) return null;
 
   return (
-    <div className="flex min-h-dvh">
-      <aside className="hidden w-60 shrink-0 flex-col border-r border-line bg-surface/40 lg:flex">
+    <div className="relative isolate flex min-h-dvh">
+      {/*
+        Mesma malha da tela de entrada, bem mais discreta.
+        Atras de tabela e grafico, um fundo animado forte vira ruido: aqui ele
+        fica em ~18% de opacidade, com pulsos mais raros e sem reagir ao
+        ponteiro -- o cursor pertence aos dados, nao ao enfeite.
+      */}
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <DotGridWave
+          spacing={30}
+          dotSize={1.5}
+          waveScale={2}
+          waveSpeed={0.09}
+          angle={72}
+          mouse={0}
+          pulse={0.8}
+          pulseInterval={5}
+          opacity={0.38}
+        />
+      </div>
+      <aside className="hidden w-60 shrink-0 flex-col border-r border-line bg-surface/80 backdrop-blur-sm lg:flex">
         <div className="flex h-14 items-center gap-2.5 border-b border-line px-4">
           <CastWaveMark size={22} className="text-text" />
           <span className="text-[13px] font-semibold tracking-tight">
@@ -180,7 +200,7 @@ export function ConsoleShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-line px-5">
+        <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-line bg-ink/70 px-5 backdrop-blur-sm">
           <div className="flex items-center gap-2 lg:hidden">
             <CastWaveMark size={20} className="text-text" />
             <span className="text-[13px] font-semibold text-cyan">CastWave</span>
