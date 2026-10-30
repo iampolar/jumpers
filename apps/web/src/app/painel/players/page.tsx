@@ -335,7 +335,7 @@ function ModalCodigo({
       footer={<Button variant="primary" onClick={onClose}>Concluir</Button>}
     >
       <div className="rounded-xl border border-cyan/25 bg-cyan/5 p-6 text-center">
-        <p className="font-mono text-4xl font-semibold tracking-[0.2em] text-cyan">{codigo.code}</p>
+        <p className="font-mono text-4xl font-semibold tracking-[0.2em] text-cyan-soft">{codigo.code}</p>
         <p className="mt-3 text-[12px] text-muted">Expira em {minutos} minutos · uso unico</p>
         <div className="mt-4 flex justify-center">
           <Button

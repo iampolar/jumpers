@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { SessionContext } from '@castwave/contracts';
 import { CastWaveStacked } from '@/components/brand';
-import { DotGridWave } from '@/components/dot-grid-wave';
+import { AmbientBackground } from '@/components/ambient-background';
 import { Alert, Button, Field, Input } from '@/components/ui';
 import { api, ApiError, setCsrfToken } from '@/lib/api';
 
@@ -58,29 +58,7 @@ export default function EntrarPage() {
 
   return (
     <div className="relative isolate flex min-h-dvh items-center justify-center overflow-hidden px-6 py-12">
-      {/*
-        Duas camadas de fundo, ambas decorativas:
-        a malha de pontos da textura, o brilho radial puxa o olho para o
-        centro, onde esta o formulario.
-      */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <DotGridWave
-          angle={72}
-          waveScale={3}
-          waveSpeed={0.3}
-          spacing={24}
-          dotSize={1.9}
-          mouse={0.7}
-          pulse={0.95}
-          pulseInterval={2.2}
-          opacity={0.85}
-        />
-      </div>
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-52 left-1/2 -z-10 h-[520px] w-[900px] -translate-x-1/2 rounded-full opacity-[0.16] blur-3xl"
-        style={{ background: 'radial-gradient(circle, #16D9E8 0%, #3977FF 45%, transparent 70%)' }}
-      />
+      <AmbientBackground intensity="marca" />
 
       <div className="w-full max-w-sm rounded-2xl border border-line/60 bg-surface/80 p-7 shadow-2xl backdrop-blur-xl">
         <div className="mb-8 flex flex-col items-center text-center">

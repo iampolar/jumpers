@@ -289,7 +289,7 @@ export default function PlayerPage() {
           </>
         ) : itemAtual ? (
           <>
-            <p className="text-[11px] uppercase tracking-[0.2em] text-cyan">
+            <p className="text-[11px] uppercase tracking-[0.2em] text-cyan-soft">
               {itemAtual.itemType === 'music' ? 'Tocando agora' : 'Anuncio no ar'}
             </p>
             <h1 className="mt-3 max-w-2xl text-balance text-2xl font-semibold tracking-tight">

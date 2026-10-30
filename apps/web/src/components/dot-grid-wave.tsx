@@ -32,7 +32,7 @@ import { useEffect, useRef } from 'react';
  */
 
 export interface DotGridWaveProps {
-  /** Cores da onda, do vale a crista. Padrao: ciano -> azul -> violeta. */
+  /** Cores da onda, do vale a crista. Padrao: azul -> ciano -> branco. */
   colors?: readonly string[];
   /** Distancia entre pontos, em pixels. */
   spacing?: number;
@@ -46,6 +46,14 @@ export interface DotGridWaveProps {
   angle?: number;
   /** Intensidade do halo do ponteiro, de 0 a 1. Zero desliga. */
   mouse?: number;
+  /**
+   * Curva de queda do halo do ponteiro.
+   *
+   * 1 e a queda natural (cosseno ao quadrado): o realce cai suave do centro
+   * ate a borda do raio. Acima de 1 o halo fecha -- fica concentrado e com
+   * limite mais nitido; abaixo de 1 ele se espalha e some mais devagar.
+   */
+  falloff?: number;
   /** Intensidade dos pulsos automaticos, de 0 a 1. Zero desliga. */
   pulse?: number;
   /** Segundos entre o nascimento de um pulso e o proximo. */
@@ -55,7 +63,7 @@ export interface DotGridWaveProps {
   className?: string;
 }
 
-/** `#16D9E8` -> `[22, 217, 232]`. */
+/** `#00D1FF` -> `[0, 209, 255]`. */
 function parseHex(hex: string): [number, number, number] {
   const clean = hex.replace('#', '');
   const full =
@@ -91,14 +99,16 @@ interface Pulso {
 }
 
 export function DotGridWave({
-  // Identidade CastWave: ciano, azul e violeta da paleta da marca.
-  colors = ['#16D9E8', '#3977FF', '#7C5CFF'],
+  // Identidade CastWave: Azul Noite no vale, Ciano Tech no meio, Branco
+  // Absoluto na crista -- a onda ACENDE, em vez de so mudar de matiz.
+  colors = ['#1B3A5C', '#00D1FF', '#FFFFFF'],
   spacing = 26,
   dotSize = 1.6,
   waveScale = 3,
   waveSpeed = 0.16,
   angle = 72,
-  mouse = 0.7,
+  mouse = 0.88,
+  falloff = 1,
   pulse = 0.85,
   pulseInterval = 2.6,
   opacity = 0.5,
@@ -169,7 +179,10 @@ export function DotGridWave({
       while (pulsos.length > 0 && t - pulsos[0]!.nascimento > PULSO_VIDA) pulsos.shift();
 
       const velocidadePulso = diagonal / PULSO_VIDA;
-      const raioPonteiro = spacing * 7;
+      // Alcance generoso: e a malha, nao o gradiente, que expressa a luz do
+      // ponteiro -- entao ela precisa pegar pontos suficientes para ler como
+      // uma area acesa, e nao como um punhado de pontos piscando.
+      const raioPonteiro = spacing * 9;
       const cols = Math.ceil(width / spacing) + 1;
       const rows = Math.ceil(height / spacing) + 1;
 
@@ -202,7 +215,8 @@ export function DotGridWave({
           if (ponteiro.ativo && mouse > 0) {
             const distancia = Math.hypot(x - ponteiro.x, y - ponteiro.y);
             if (distancia < raioPonteiro) {
-              const queda = Math.cos((distancia / raioPonteiro) * Math.PI * 0.5) ** 2;
+              const base = Math.cos((distancia / raioPonteiro) * Math.PI * 0.5) ** 2;
+              const queda = falloff === 1 ? base : base ** falloff;
               realce += queda * mouse;
             }
           }
@@ -282,7 +296,19 @@ export function DotGridWave({
       window.removeEventListener('pointerleave', onPointerLeave);
       document.removeEventListener('visibilitychange', onVisibility);
     };
-  }, [colors, spacing, dotSize, waveScale, waveSpeed, angle, mouse, pulse, pulseInterval, opacity]);
+  }, [
+    colors,
+    spacing,
+    dotSize,
+    waveScale,
+    waveSpeed,
+    angle,
+    mouse,
+    falloff,
+    pulse,
+    pulseInterval,
+    opacity,
+  ]);
 
   return (
     <canvas

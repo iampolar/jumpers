@@ -1,5 +1,5 @@
 import type { RotationRules } from '@castwave/contracts';
-import { localMinutesOfDay, minutesFromLocalTime } from '../time/timezone';
+import { localDateString, localMinutesOfDay, minutesFromLocalTime } from '../time/timezone';
 
 /**
  * Motor de rotacao.
@@ -263,9 +263,16 @@ export function buildRotation(input: RotationInput): RotationResult {
   return { slots, totalDurationMs: cursorMs, excluded };
 }
 
-/** Semente derivada do dia local: estavel dentro do dia, varia entre dias. */
+/**
+ * Semente derivada do dia local: estavel dentro do dia, varia entre dias.
+ *
+ * O dia TEM que ser o da loja. Usar `toISOString()` aqui pegava o dia em UTC:
+ * numa loja em Sao Paulo (UTC-3) a semente virava as 21h, no meio do
+ * expediente, e a rotacao do dia se reembaralhava sozinha na frente do
+ * cliente. O nome da funcao ja dizia "dia local"; o codigo e que nao fazia.
+ */
 function deriveSeed(at: Date, timezone: string): number {
-  const key = `${at.toISOString().slice(0, 10)}:${timezone}`;
+  const key = `${localDateString(at, timezone)}:${timezone}`;
   let h = 2166136261;
   for (let i = 0; i < key.length; i += 1) {
     h ^= key.charCodeAt(i);

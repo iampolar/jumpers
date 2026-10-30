@@ -39,10 +39,22 @@ interface ButtonProps extends Omit<ComponentProps<'button'>, 'className'> {
   className?: string;
 }
 
+/**
+ * Uma acao primaria por tela.
+ *
+ * A primaria e a unica que ganha LUZ: alem do preenchimento turquesa, um halo
+ * da propria cor da marca que so acende no hover. E o mesmo vocabulario do
+ * fundo -- a interface toda ilumina em turquesa -- aplicado ao unico elemento
+ * que deve puxar o clique. A secundaria e translucida como o cartao, para
+ * pertencer a mesma superficie de vidro em vez de parecer colada por cima.
+ */
 const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
   primary:
-    'bg-cyan text-ink hover:bg-cyan/90 active:bg-cyan/80 font-medium shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset]',
-  secondary: 'bg-elevated text-text border border-line hover:border-muted/40 hover:bg-elevated/80',
+    'bg-cyan text-ink hover:bg-cyan/90 active:bg-cyan/80 font-medium ' +
+    'shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset] ' +
+    'hover:shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_0_20px_-4px_var(--color-cyan)]',
+  secondary:
+    'bg-elevated/70 text-text border border-line backdrop-blur-sm hover:border-cyan/40 hover:bg-elevated',
   ghost: 'text-muted hover:text-text hover:bg-elevated/60',
   danger: 'bg-danger/10 text-danger border border-danger/25 hover:bg-danger/20',
 };
@@ -66,7 +78,10 @@ export function Button({
       title={disabledReason ?? undefined}
       aria-disabled={isDisabled}
       className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-lg transition-colors',
+        // Cor E sombra na mesma duracao: o halo da primaria tem que acender
+        // junto com o preenchimento, nunca depois dele.
+        'inline-flex items-center justify-center gap-2 rounded-lg',
+        'transition-[color,background-color,border-color,box-shadow] duration-[var(--motion-base)] ease-[var(--ease-out)]',
         'disabled:cursor-not-allowed disabled:opacity-45',
         size === 'sm' ? 'h-8 px-3 text-[13px]' : 'h-9 px-4 text-sm',
         BUTTON_VARIANTS[variant],
@@ -150,9 +165,25 @@ export function Select({ className, children, ...rest }: ComponentProps<'select'
 // Superficies
 // --------------------------------------------------------------------------
 
+/**
+ * Superficie elevada do console.
+ *
+ * Translucida de proposito, com desfoque e sombra -- exatamente o tratamento
+ * do cartao da tela de entrada. Um cartao opaco corta o fundo em retangulos e
+ * o painel passa a parecer outro produto; deixando a atmosfera atravessar a
+ * 20%, a malha e a aurora continuam legiveis ATRAS do conteudo e as duas telas
+ * leem como o mesmo sistema. A sombra e o que mantem a hierarquia: sem ela, a
+ * superficie translucida se dissolveria no fundo em vez de flutuar sobre ele.
+ */
 export function Card({ className, children, ...rest }: ComponentProps<'section'>) {
   return (
-    <section className={cn('rounded-xl border border-line bg-surface', className)} {...rest}>
+    <section
+      className={cn(
+        'rounded-xl border border-line/70 bg-surface/80 shadow-xl shadow-ink/40 backdrop-blur-xl',
+        className,
+      )}
+      {...rest}
+    >
       {children}
     </section>
   );
@@ -189,7 +220,7 @@ const BADGE_TONES: Record<BadgeTone, string> = {
   success: 'bg-success/10 text-success border-success/25',
   warning: 'bg-warning/10 text-warning border-warning/25',
   danger: 'bg-danger/10 text-danger border-danger/25',
-  info: 'bg-cyan/10 text-cyan border-cyan/25',
+  info: 'bg-cyan/10 text-cyan-soft border-cyan/25',
 };
 
 /** O texto do badge JA diz o estado; a cor so reforca. */
@@ -244,7 +275,7 @@ export function Alert({
   action?: ReactNode;
 }) {
   const styles = {
-    info: { box: 'border-cyan/25 bg-cyan/5', text: 'text-cyan', Icon: Info },
+    info: { box: 'border-cyan/25 bg-cyan/5', text: 'text-cyan-soft', Icon: Info },
     warning: { box: 'border-warning/25 bg-warning/5', text: 'text-warning', Icon: AlertTriangle },
     danger: { box: 'border-danger/25 bg-danger/5', text: 'text-danger', Icon: AlertTriangle },
     success: { box: 'border-success/25 bg-success/5', text: 'text-success', Icon: Check },
@@ -283,7 +314,19 @@ export function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center px-6 py-14 text-center">
-      {icon && <div className="mb-4 text-muted/40">{icon}</div>}
+      {/*
+        Medalhao em vez de icone solto. Um glifo a 40% de opacidade no meio do
+        vazio le como conteudo que FALHOU em carregar; dentro de um circulo com
+        borda, le como um estado previsto pelo produto.
+      */}
+      {icon && (
+        <div
+          className="mb-4 flex size-12 items-center justify-center rounded-full border border-line bg-elevated/50 text-cyan-soft"
+          aria-hidden
+        >
+          {icon}
+        </div>
+      )}
       <h3 className="text-sm font-medium text-text">{title}</h3>
       <p className="mt-1.5 max-w-sm text-[13px] leading-relaxed text-muted">{description}</p>
       {action && <div className="mt-5">{action}</div>}

@@ -1,24 +1,25 @@
 /**
  * Paleta de series dos graficos.
  *
- * NAO e a paleta da marca. As cores de marca (ciano #16D9E8, azul #3977FF,
- * violeta #7C5CFF) sao vizinhas no espectro e falham como paleta categorica:
- * o validador mede ΔE 0.5 entre o azul e o violeta sob deuteranopia, ou seja,
- * um leitor daltonico nao distingue as duas series. Marca e identidade;
- * paleta de dados e leitura.
+ * NAO e a paleta da marca, e a diferenca e deliberada. O Ciano Tech #00D1FF e
+ * claro demais para conviver com outras series: numa mesma faixa de
+ * luminosidade ele domina, e fora dela quebra a regra de que series
+ * categoricas devem ter peso visual equivalente. Marca e identidade; paleta de
+ * dados e leitura.
  *
  * Estes quatro valores passam os seis checks em TODOS os pares, contra a
- * superficie escura #101522:
+ * superficie escura #0E1A2E -- o primeiro deles e da familia do ciano, para
+ * que a serie principal ainda pertenca a identidade:
  *
  *   Lightness band    4/4 dentro de L 0.48-0.67
  *   Chroma floor      4/4 >= 0.10
- *   CVD separation    pior par ΔE 9.3 (deutan) / 8.7 (tritan)
- *   Normal vision     pior par ΔE 15.2
+ *   CVD separation    pior par DeltaE 9.3 (deutan) / 8.7 (tritan)
+ *   Normal vision     pior par DeltaE 15.2
  *   Contraste         4/4 >= 3:1
  *
  * Para reproduzir, a partir da pasta da skill dataviz:
  *   node scripts/validate_palette.js \
- *     "#13A4B8,#C77F14,#7357F5,#D44F66" --mode dark --surface "#101522" --pairs all
+ *     "#13A4B8,#C77F14,#7357F5,#D44F66" --mode dark --surface "#0E1A2E" --pairs all
  *
  * Verde ficou de fora de proposito: ele e cor de STATUS (sucesso) e cores de
  * status nao viram "serie 4". Reusa-lo criaria ambiguidade entre "esta serie"
@@ -54,10 +55,10 @@ export function colorForSeries(key: string): string {
 
 /** Status: reservadas, sempre com rotulo ou icone junto -- nunca so cor. */
 export const STATUS_COLORS = {
-  good: '#36C98F',
-  warning: '#F5B942',
-  critical: '#F06472',
-  neutral: '#98A2B3',
+  good: '#3FA98A',
+  warning: '#D8A84E',
+  critical: '#D96A6A',
+  neutral: '#8495A7',
 } as const;
 
 export const SERIES_LABELS_PT: Record<string, string> = {

@@ -35,7 +35,7 @@ import { useApi, useSession } from '@/lib/session';
 const DIAS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
 
 const BLOCO_COR: Record<string, string> = {
-  program: 'bg-cyan/20 border-cyan/40 text-cyan',
+  program: 'bg-cyan/20 border-cyan/40 text-cyan-soft',
   blackout: 'bg-danger/10 border-danger/30 text-danger',
   closed: 'bg-elevated border-line text-muted',
   gap: 'bg-surface border-line/50 text-muted/60',
@@ -426,7 +426,7 @@ function ModalAgenda({
                 }
                 className={`h-9 flex-1 rounded-lg border text-[12px] transition-colors ${
                   dias.includes(index)
-                    ? 'border-cyan/50 bg-cyan/15 text-cyan'
+                    ? 'border-cyan/50 bg-cyan/15 text-cyan-soft'
                     : 'border-line bg-ink/60 text-muted hover:text-text'
                 }`}
               >

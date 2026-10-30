@@ -8,7 +8,7 @@
  * da fidelidade por construcao.
  *
  * Tres camadas, nesta ordem de pintura:
- *   1. base colorida  -- todas as ondas e a orelha, em azul -> violeta;
+ *   1. base colorida  -- todas as ondas e a orelha, em dourado;
  *   2. ciano          -- por cima, a orelha e o arco externo;
  *   3. silhueta       -- o coelho, em `currentColor`.
  *
@@ -36,7 +36,7 @@ export function CastWaveMark({ size = 32, className }: { size?: number; classNam
       aria-label="CastWave"
     >
       <defs>
-        {/* Arcos internos: azul da marca virando violeta, como no original. */}
+        {/* Arcos internos: dourado da marca, o acento quente da paleta. */}
         <linearGradient
           id="cw-base"
           x1="21"
@@ -45,8 +45,8 @@ export function CastWaveMark({ size = 32, className }: { size?: number; classNam
           y2="63"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stopColor="#3977FF" />
-          <stop offset="1" stopColor="#7C5CFF" />
+          <stop stopColor="#8495A7" />
+          <stop offset="1" stopColor="#AFBEC9" />
         </linearGradient>
         {/* Orelha e arco externo: ciano, mais profundo na base. */}
         <linearGradient
@@ -57,9 +57,9 @@ export function CastWaveMark({ size = 32, className }: { size?: number; classNam
           y2="0"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stopColor="#16A9C4" />
-          <stop offset="0.45" stopColor="#16D9E8" />
-          <stop offset="1" stopColor="#3BE8F0" />
+          <stop stopColor="#0094C4" />
+          <stop offset="0.45" stopColor="#00D1FF" />
+          <stop offset="1" stopColor="#7FE9FF" />
         </linearGradient>
       </defs>
 
@@ -76,7 +76,7 @@ export function CastWaveWordmark({ className }: { className?: string }) {
     <span className={className}>
       <span className="font-semibold tracking-tight text-text">JUMPERS</span>
       <span className="mx-1.5 text-muted/40">/</span>
-      <span className="font-semibold tracking-tight text-cyan">CastWave</span>
+      <span className="font-semibold tracking-tight text-cyan-soft">CastWave</span>
     </span>
   );
 }
@@ -102,7 +102,7 @@ export function CastWaveStacked({ size = 72 }: { size?: number }) {
       <div className="mt-3 flex flex-col items-center leading-none">
         {/* Peso alto e espacamento largo reproduzem o wordmark original. */}
         <span className="text-[22px] font-bold tracking-[0.14em] text-text">JUMPERS</span>
-        <span className="mt-1.5 text-[17px] font-semibold tracking-tight text-cyan">CastWave</span>
+        <span className="mt-1.5 text-[17px] font-semibold tracking-tight text-cyan-soft">CastWave</span>
       </div>
     </div>
   );

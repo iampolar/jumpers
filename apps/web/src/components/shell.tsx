@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import type { Permission } from '@castwave/contracts';
 import { CastWaveMark } from './brand';
-import { DotGridWave } from './dot-grid-wave';
+import { AmbientBackground } from './ambient-background';
 import { cn, Spinner } from './ui';
 import { useSession } from '@/lib/session';
 
@@ -84,7 +84,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
           : 'text-muted hover:bg-elevated/50 hover:text-text',
       )}
     >
-      <Icon size={15} className={active ? 'text-cyan' : ''} aria-hidden />
+      <Icon size={15} className={active ? 'text-cyan-soft' : ''} aria-hidden />
       {item.label}
     </Link>
   );
@@ -115,32 +115,14 @@ export function ConsoleShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="relative isolate flex min-h-dvh">
-      {/*
-        Mesma malha da tela de entrada, bem mais discreta.
-        Atras de tabela e grafico, um fundo animado forte vira ruido: aqui ele
-        fica em ~18% de opacidade, com pulsos mais raros e sem reagir ao
-        ponteiro -- o cursor pertence aos dados, nao ao enfeite.
-      */}
-      <div className="pointer-events-none fixed inset-0 -z-10">
-        <DotGridWave
-          spacing={30}
-          dotSize={1.5}
-          waveScale={2}
-          waveSpeed={0.09}
-          angle={72}
-          mouse={0}
-          pulse={0.8}
-          pulseInterval={5}
-          opacity={0.38}
-        />
-      </div>
+      <AmbientBackground intensity="console" />
       <aside className="hidden w-60 shrink-0 flex-col border-r border-line bg-surface/80 backdrop-blur-sm lg:flex">
         <div className="flex h-14 items-center gap-2.5 border-b border-line px-4">
           <CastWaveMark size={22} className="text-text" />
           <span className="text-[13px] font-semibold tracking-tight">
             <span className="text-text">JUMPERS</span>
             <span className="mx-1 text-muted/40">/</span>
-            <span className="text-cyan">CastWave</span>
+            <span className="text-cyan-soft">CastWave</span>
           </span>
         </div>
 
@@ -169,7 +151,7 @@ export function ConsoleShell({ children }: { children: ReactNode }) {
 
           {session.user.platformRole !== 'none' && (
             <div>
-              <p className="mb-1.5 px-2.5 text-[10px] font-medium uppercase tracking-wider text-violet/60">
+              <p className="mb-1.5 px-2.5 text-[10px] font-medium uppercase tracking-wider text-titanium/60">
                 Jumpers
               </p>
               <Link
@@ -203,7 +185,7 @@ export function ConsoleShell({ children }: { children: ReactNode }) {
         <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-line bg-ink/70 px-5 backdrop-blur-sm">
           <div className="flex items-center gap-2 lg:hidden">
             <CastWaveMark size={20} className="text-text" />
-            <span className="text-[13px] font-semibold text-cyan">CastWave</span>
+            <span className="text-[13px] font-semibold text-cyan-soft">CastWave</span>
           </div>
           <div className="ml-auto flex items-center gap-3">
             <span className="hidden text-[12px] text-muted sm:inline">

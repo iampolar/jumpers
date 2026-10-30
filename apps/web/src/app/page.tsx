@@ -1,3 +1,4 @@
+import { AmbientBackground } from '@/components/ambient-background';
 import { CastWaveLockup, CastWaveMark } from '@/components/brand';
 
 /**
@@ -48,11 +49,7 @@ export default async function Home() {
   return (
     <div className="relative isolate min-h-dvh overflow-hidden">
       {/* Brilho de fundo discreto; sem glassmorphism em toda superficie. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-40 left-1/2 h-[480px] w-[900px] -translate-x-1/2 rounded-full opacity-[0.14] blur-3xl"
-        style={{ background: 'radial-gradient(circle, #16D9E8 0%, #3977FF 45%, transparent 70%)' }}
-      />
+      <AmbientBackground intensity="marca" />
 
       <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-6">
         <CastWaveLockup />
@@ -63,7 +60,7 @@ export default async function Home() {
 
       <main id="conteudo" className="mx-auto max-w-5xl px-6 pb-24">
         <section className="pt-10 pb-14">
-          <p className="mb-4 text-xs font-medium uppercase tracking-[0.18em] text-cyan">
+          <p className="mb-4 text-xs font-medium uppercase tracking-[0.18em] text-cyan-soft">
             Central de audio do varejo
           </p>
           <h1 className="max-w-2xl text-balance text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">

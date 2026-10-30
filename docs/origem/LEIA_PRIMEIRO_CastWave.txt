@@ -1,0 +1,17 @@
+JUMPERS / CASTWAVE — PACOTE DE PROJETO
+
+Arquivos:
+- Jumpers_CastWave_Arquitetura_Completa.md: blueprint de produto, UX, arquitetura, dados, APIs, segurança, testes e roadmap.
+- Prompt_Mestre_Claude_CastWave.txt: prompt operacional para colar no Claude Code/Claude Max.
+- Jumpers_CastWave_Logo.png: logo com fundo branco.
+- Jumpers_CastWave_Logo_Transparente.png: versão transparente adequada para fundos claros.
+
+Como usar:
+1. Abra o repositório que será o código do CastWave no Claude Code.
+2. Adicione os arquivos de arquitetura e o prompt ao workspace ou envie-os como contexto.
+3. Cole o conteúdo completo de Prompt_Mestre_Claude_CastWave.txt e peça para começar pela Fase 0.
+4. Deixe o Claude auditar e executar os testes existentes antes de alterar código.
+5. Não forneça credenciais da IA nem do gateway nesta etapa. O objetivo é construir e testar o restante, deixando esses adapters claramente desacoplados.
+6. Revise o relatório de cada fase e só depois configure credenciais sandbox e produção.
+
+Importante: esse pacote é o plano e o prompt de execução; não é o código-fonte do SaaS implementado. O agente precisa construir no repositório real e comprovar cada entrega com testes executados.

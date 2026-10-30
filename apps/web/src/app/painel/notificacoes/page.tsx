@@ -63,7 +63,7 @@ export default function NotificacoesPage() {
                     <div className="mt-2 flex items-center gap-3 text-[12px]">
                       <span className="text-muted/70">{formatRelative(n.createdAt)}</span>
                       {n.href && (
-                        <Link href={n.href} className="text-cyan hover:underline">
+                        <Link href={n.href} className="text-cyan-soft hover:underline">
                           Resolver
                         </Link>
                       )}

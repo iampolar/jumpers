@@ -9,6 +9,7 @@ import {
   type RegisteredTenant,
   type TestContext,
 } from '../../testing/harness';
+import { localDateString } from '@castwave/core';
 import { wavTone } from '../../testing/audio';
 
 let ctx: TestContext;
@@ -226,7 +227,11 @@ describe('manifesto', () => {
   });
 
   it('feriado em blackout zera o manifesto com motivo', async () => {
-    const hoje = new Date().toISOString().slice(0, 10);
+    // A data TEM que vir no fuso da loja, igual ao servidor faz.
+    // `toISOString()` devolve a data em UTC: em Sao Paulo (UTC-3) as duas
+    // divergem das 21h a meia-noite, e o teste reprovava toda noite nessa
+    // janela por marcar o blackout no dia seguinte.
+    const hoje = localDateString(new Date(), 'America/Sao_Paulo');
     await tenant.agent.post('/api/v1/schedules/exceptions', {
       storeId,
       localDate: hoje,

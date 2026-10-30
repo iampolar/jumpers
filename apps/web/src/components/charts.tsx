@@ -214,7 +214,7 @@ export function LineChart({ data, series, height = 220, valueLabel }: ChartProps
                 r="4"
                 fill={colorForSeries(s)}
                 // Anel na cor da superficie separa marcas sobrepostas.
-                stroke="#101522"
+                stroke="#0e1a2e"
                 strokeWidth="2"
               />
             ))}

@@ -3,33 +3,107 @@
 /**
  * Sistema de design CastWave.
  *
- * Tokens como variaveis CSS, nao como classes utilitarias espalhadas: trocar
- * a marca-mae ou lancar um tema claro e editar este bloco, nao varrer o
- * codigo. Os valores vem da direcao visual do blueprint (secao 3.2).
+ * Quatro cores ancoram a identidade:
+ *
+ *   Azul Noite     #081020  fundo principal
+ *   Ciano Tech     #00D1FF  destaque
+ *   Branco Absoluto #FFFFFF texto e contraste
+ *   Cinza Titanium #8495A7  elementos secundarios
+ *
+ * O resto da escala e DERIVADO delas e medido -- nao escolhido no olho.
+ *
+ * Esta paleta resolveu um problema que a anterior tinha. O turquesa #178582
+ * era um meio-tom: media 4.01:1 com texto escuro e 3.86:1 com texto claro, ou
+ * seja, reprovava nos dois sentidos e exigia uma variante inventada so para
+ * carregar texto em botao. O Ciano Tech nao tem esse problema -- mede
+ * **10.5:1** com o Azul Noite por cima --, entao o destaque da marca e o
+ * preenchimento da acao primaria voltam a ser A MESMA cor. Um token a menos,
+ * e nenhuma excecao para lembrar.
+ *
+ * Medicoes sobre #081020, todas acima do minimo de 4.5:1 para corpo:
+ *
+ *   #FFFFFF texto        19.1:1
+ *   #00D1FF destaque     10.5:1
+ *   #8495A7 secundario    6.2:1
+ *   #6F8299 apoio         4.8:1
+ *
+ * O que NAO vem daqui: as cores de serie dos graficos. Ciano puro e claro
+ * demais para conviver com outras series na mesma faixa de luminosidade, e
+ * codificacao de dados tem exigencias proprias -- elas vivem em
+ * `lib/chart-palette.ts`, validadas para daltonismo.
  */
 @theme {
-  --color-ink: #070a12;
-  --color-surface: #101522;
-  --color-elevated: #171d2b;
-  --color-line: #1f2838;
+  /* Superficies: o Azul Noite e a base; cada degrau sobe mantendo o azul,
+     para nao virar cinza puro. */
+  --color-ink: #081020;
+  --color-surface: #0e1a2e;
+  --color-elevated: #16243b;
+  --color-line: #203450;
 
-  --color-cyan: #16d9e8;
-  --color-blue: #3977ff;
-  --color-violet: #7c5cff;
+  /* Ciano Tech: destaque, borda, icone, preenchimento primario e luz
+     ambiente. Uma cor so, porque ela aguenta todos esses papeis. */
+  --color-cyan: #00d1ff;
+  /* Passo mais claro, para texto de enfase sobre superficie escura. */
+  --color-cyan-soft: #5fe2ff;
 
-  --color-text: #f5f7fb;
-  --color-muted: #98a2b3;
+  /* Cinza Titanium: elementos secundarios e o console interno Jumpers --
+     o que e de apoio nao disputa com o ciano. */
+  --color-titanium: #8495a7;
+  --color-titanium-soft: #afbec9;
 
-  --color-success: #36c98f;
-  --color-warning: #f5b942;
-  --color-danger: #f06472;
+  --color-text: #ffffff;
+  /* Um degrau abaixo do Titanium, ainda com folga sobre o minimo: texto de
+     apoio precisa recuar sem deixar de ser legivel. */
+  --color-muted: #6f8299;
+
+  /* Estados, reequilibrados para a base mais escura e medidos sobre
+     `surface`. Ficam fora da paleta de marca de proposito: "deu erro" nao
+     pode depender de reconhecer a cor da empresa. */
+  --color-success: #3fa98a;
+  --color-warning: #d8a84e;
+  --color-danger: #d96a6a;
 
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
+/**
+ * Parametros do ambiente, em um unico lugar.
+ *
+ * Luz do ponteiro, brilho de fundo e duracao de transicao sao compartilhados
+ * entre login e console. Centralizar aqui e o que permite afinar a atmosfera
+ * inteira sem caçar valores espalhados por doze telas.
+ */
 :root {
   color-scheme: dark;
+
+  /* Posicao do ponteiro, escrita pelo efeito de luz via `style.setProperty`.
+     Fora da tela ate o primeiro movimento, para nao haver halo fantasma. */
+  --cursor-x: -9999px;
+  --cursor-y: -9999px;
+  /* Vai a 1 quando o ponteiro entra na janela: permite aparecer e sumir
+     com transicao, em vez de piscar. */
+  --cursor-presence: 0;
+
+  /* Raio enorme de proposito: quanto maior a mancha, menos ela se parece
+     com um disco e mais com o ar iluminado. */
+  --glow-halo: 1300px;
+  /* Opacidade da mancha ambiente, aplicada direto -- um unico numero
+     governa a presenca da luz em toda a aplicacao.
+
+     A escala mudou de significado junto com a camada. Antes eram dois
+     gradientes multiplicados por ~3, herdados de quando a cor era o turquesa
+     escuro #178582; com o Ciano Tech aquilo virou uma lanterna, e baixar o
+     numero so dava uma lanterna fraca -- o problema era a FORMA, nao a
+     intensidade. Hoje ha uma camada so, com pico de 13% de ciano, entao 0.5
+     aqui produz um tingimento de ~6% no centro: perceptivel ao mover o mouse,
+     invisivel como objeto. */
+  --glow-strength: 0.5;
+
+  --motion-fast: 120ms;
+  --motion-base: 200ms;
+  --motion-slow: 420ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 html,
@@ -50,7 +124,7 @@ body {
  * por teclado -- WCAG 2.2, criterio 2.4.11.
  */
 :focus-visible {
-  outline: 2px solid var(--color-cyan);
+  outline: 2px solid var(--color-cyan-soft);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -59,6 +133,25 @@ body {
 .tabular {
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum';
+}
+
+/*
+ * Realce de superficie no hover.
+ *
+ * Uma borda que clareia e uma elevacao discreta -- sem glow forte em todo
+ * contorno, que transformaria o painel numa vitrine de CSS. A classe existe
+ * para que cartao, linha de tabela e item de menu compartilhem exatamente a
+ * mesma resposta ao ponteiro.
+ */
+.surface-interactive {
+  transition:
+    border-color var(--motion-base) var(--ease-out),
+    background-color var(--motion-base) var(--ease-out),
+    transform var(--motion-base) var(--ease-out);
+}
+.surface-interactive:hover {
+  border-color: color-mix(in oklab, var(--color-cyan) 38%, var(--color-line));
+  background-color: color-mix(in oklab, var(--color-elevated) 55%, var(--color-surface));
 }
 
 /* Respeita quem pediu menos movimento no sistema operacional. */
@@ -71,8 +164,14 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  /* A luz do ponteiro vira um brilho estatico e fraco: a atmosfera continua,
+     o movimento nao. */
+  :root {
+    --glow-strength: 0.1;
+  }
 }
 
 ::selection {
-  background: color-mix(in oklab, var(--color-cyan) 30%, transparent);
+  background: color-mix(in oklab, var(--color-cyan-soft) 32%, transparent);
 }

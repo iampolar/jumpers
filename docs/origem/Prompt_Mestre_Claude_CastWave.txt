@@ -1,0 +1,147 @@
+PROMPT MESTRE — JUMPERS / CASTWAVE
+Auditoria profunda + implementação faseada de um SaaS completo de sonorização comercial
+
+PAPEL
+Atue como Principal Software Architect, Staff Engineer, Product Designer, QA/SDET, Security Engineer e DevOps Lead. Trabalhe com autonomia técnica, rigor de produção e evidência verificável. Não entregue apenas opinião, wireframe ou lista de tarefas: audite o repositório real e implemente o produto fase a fase, com testes. Não invente resultados, integrações, credenciais nem funcionalidades concluídas.
+
+CONTEXTO DO PRODUTO
+Empresa: JUMPERS. Produto: CastWave. CastWave é uma plataforma SaaS B2B para lojas físicas organizarem música ambiente, anúncios promocionais falados, avisos, jingles e playlists em uma ou muitas lojas. O lojista deve conseguir escrever um anúncio manualmente, usar modelos, enviar seu próprio áudio, montar a programação, agendar campanhas por dia/horário/filial, parear um player e ver relatórios de reprodução. Mais adiante, a IA gerará roteiros e voz; o gateway cobrará as assinaturas. O núcleo do produto precisa funcionar antes de ambas as integrações.
+
+PRINCÍPIO INEGOCIÁVEL
+Deixe todo o produto principal pronto para que, posteriormente, seja necessário apenas conectar os adapters reais de IA/TTS e gateway de pagamento, configurar secrets e executar testes sandbox. NÃO faça chamadas reais de IA ou pagamentos agora. NÃO simule sucesso em produção. Mock/fake provider só pode existir em testes e em desenvolvimento explicitamente identificado.
+
+DOCUMENTAÇÃO DE ARQUITETURA
+Use o arquivo “Jumpers_CastWave_Arquitetura_Completa.md” como blueprint funcional. Se eu não o tiver adicionado ao workspace, use os requisitos detalhados neste prompt e crie `docs/CASTWAVE_ARCHITECTURE.md` com decisões, modelo de dados, API, roadmap, riscos e critérios de aceite. Não pare apenas porque o arquivo está ausente.
+
+REGRA DE OURO: AUDITAR ANTES DE EDITAR
+1. Descubra se este repositório já tem código, stack, migrations, banco, rotas, telas, autenticação, jobs, storage ou testes.
+2. Leia `README`, manifests, configurações, árvore de pastas, migrations, modelos, rotas, guards/middlewares, serviços, componentes, scripts e workflows de CI.
+3. Execute a suíte de testes, lint, typecheck e build existentes antes de mudar qualquer coisa; registre o baseline e diferencie falhas preexistentes das novas.
+4. Classifique os requisitos em: EXISTENTE E VALIDADO, EXISTENTE COM DEFEITO, PARCIAL, AUSENTE, FORA DO ESCOPO.
+5. Gere inventário de gaps com evidências e plano faseado, sem reescrever módulos saudáveis e sem apagar arquivos/dados por conveniência.
+6. Se o repositório estiver vazio, use uma arquitetura TypeScript moderna: monorepo pnpm, Next.js para UI, NestJS REST modular, PostgreSQL, Prisma, Redis/BullMQ, MinIO local/S3 em produção, worker separado e PWA para player. Ajuste versões compatíveis e estáveis. Se já existir uma stack sólida, preserve-a quando fizer sentido.
+
+VISÃO DO PRODUTO
+O diferencial é ser uma central de áudio para varejo, não apenas um gerador de voz. Entregue:
+- Organização multi-tenant; múltiplas lojas e zonas por empresa.
+- Biblioteca privada de áudio, com upload de faixas próprias/licenciadas, avisos, locuções e jingles.
+- Criação manual de anúncios e modelos reutilizáveis sem IA.
+- Anúncios versionados, prévia, aprovação opcional, agendamento, vigência e expiração automática.
+- Playlists com faixas musicais e inserção de anúncios por intervalo/N faixas; prioridade, limites de repetição, janelas, feriados e exceções.
+- Campanhas vinculadas a anúncios e lojas, com data inicial/final.
+- CastWave Player web/PWA com pairing seguro, estado “tocando agora”, próxima faixa, heartbeat, manifesto, pre-cache, operação offline limitada e sincronização de eventos.
+- Dashboard de disponibilidade de lojas/players, campanhas, reproduções e falhas.
+- Relatórios filtráveis e CSV seguro.
+- Equipe, papéis, permissões e escopo por loja.
+- Planos, quotas, medição de uso e tela de assinatura sem gateway conectado.
+- Área administrativa Jumpers separada, auditoria, saúde, filas, suporte e gestão de organizações.
+- Notificações internas. E-mail pode ser opcional e nunca fingir envio quando não configurado.
+
+PAPÉIS MÍNIMOS
+1. Superadmin Jumpers, com proteção reforçada e auditoria.
+2. Owner da organização.
+3. Admin da organização.
+4. Editor de conteúdo.
+5. Operador restrito a determinadas lojas.
+6. Leitor/financeiro.
+7. Player/dispositivo com credencial técnica independente e escopo mínimo.
+Não basta esconder links: toda autorização é validada na API. Nunca confiar em organization_id/store_id informado livremente pelo cliente.
+
+EXPERIÊNCIA E DESIGN
+Marca-mãe JUMPERS; produto CastWave. Visual SaaS premium, sonoro e minimalista. Base escura `#070A12`, surfaces `#101522`/`#171D2B`, ciano `#16D9E8`, azul `#3977FF`, violeta `#7C5CFF` como apoio, texto `#F5F7FB`. Tipografia Geist/Inter, bordas discretas, boa hierarquia, tabelas úteis e estados legíveis. Sem dashboard genérico cheio de cartões sem função. Responsivo e acessível (meta WCAG 2.2 AA): teclado, foco, labels, contraste e redução de movimento. A marca usa coelho geométrico unido a ondas sonoras, sem mascote infantil. Toda tela deve ser funcional: botões executam ação real ou ficam desabilitados com motivo explícito.
+
+TELAS MÍNIMAS DO CLIENTE
+Overview; Programação/calendário; Anúncios; Criador de anúncio; Biblioteca de áudio; Playlists; Campanhas; Lojas e zonas; Players/dispositivos; Relatórios; Equipe/permissões; Assinatura/uso; Configurações; Ajuda/diagnóstico. Player tem interface própria, sem menu administrativo. Painel Jumpers tem organização/contas, planos/limites, saúde, jobs, eventos de integração, auditoria e suporte. Layout, rotas e guards precisam ficar separados.
+
+ARQUITETURA
+Prefira monólito modular com worker separado, não microserviços prematuros. Domínios: Auth, Organizations, Access Control, Stores, Devices, Media, Announcements, Playlists, Scheduling, Campaigns, Playback, Analytics, Billing, AI Integration, Notifications, Support, Audit, Admin e Health. API REST versionada em `/api/v1`, OpenAPI, schemas de entrada, paginação, request ID, erros consistentes. Arquivos em storage S3-compatível; nunca em grandes blobs no PostgreSQL. MinIO para dev. FFmpeg/ffprobe no worker para duração e normalização; falha de dependência deve degradar readiness e comunicar erro real. Redis/BullMQ para processamento. Migrations incrementais e auditáveis. Docker Compose e CI.
+
+MODELO DE DADOS A COBRIR
+Users, organizations, organization_memberships, store_memberships, stores, audio_zones, player_devices, device_pairing_codes, media_assets, announcements, announcement_versions, playlists, playlist_items, schedules, schedule_exceptions, campaigns, campaign_announcements, playback_events, analytics_daily, plans, subscriptions, usage_ledger, checkout_sessions, payment_webhook_events, notifications, support_tickets/messages, audit_logs, outbox_events e idempotency_keys conforme a necessidade real. Não crie tabela sem uso. Dados multi-tenant devem ter escopo organizacional; use FKs compostas/constraints para impedir associações cruzadas. Não apague histórico importante; prefira arquivamento. Índices, constraints e migrações fazem parte do trabalho.
+
+FLUXO CENTRAL QUE DEVE FUNCIONAR SEM IA/GATEWAY
+1. Criar usuário/organização e cadastrar duas lojas, cada uma com timezone.
+2. Criar zonas de áudio.
+3. Subir áudio real próprio/licenciado; validar MIME por conteúdo, bytes, duração, checksum e processar via FFmpeg quando disponível.
+4. Criar anúncio por texto manual/modelo e vinculá-lo ao áudio; editar/versionar, fazer prévia e aprovar caso a organização exija.
+5. Criar playlist com músicas e spots, configurar intervalo/prioridade/validade e agendar por horário/loja/zona.
+6. Criar campanha com começo/fim e alvo; conteúdo vencido deixa automaticamente de ser elegível.
+7. Gerar código de pairing aleatório, hash no banco, uso único e TTL curto; vincular player à loja/zona.
+8. Player solicita manifesto restrito, exige interação humana inicial para iniciar áudio se o browser bloquear autoplay, baixa próximos arquivos com limite e toca playlist. Exibe estado real, última sincronização e falhas.
+9. Player envia heartbeat e eventos `started`, `completed`, `failed`, `skipped` com IDs idempotentes; buffer eventos offline e sincroniza ao reconectar sem duplicar contagens.
+10. Dashboard/relatórios refletem eventos persistidos e CSV respeita escopo/permissões.
+11. Sem provider de IA, o usuário cria texto manual e faz upload. UI mostra “IA não configurada” e não simula uma voz.
+12. Sem gateway, checkout fica indisponível com motivo claro. Planos, quotas, assinatura interna e medição seguem funcionando; jamais marcar cobrança real como paga.
+
+PLAYLIST E PLAYER
+Tipos de item: música, spot promocional, aviso operacional, jingle. MVP deve inserir anúncios em pontos definidos, evitar sobreposição por padrão e não criar loops infinitos. Regras testáveis: intervalo, N faixas, repetição máxima, prioridade, vigência, horários proibidos, exceções e tratamento de falha. Timezone IANA por loja; persistir timestamps em UTC e resolver recorrência no horário local. PWA usa cache limitado/pre-cache e buffer local; documente limitações de navegador/autoplay/suspensão. Se faltar recurso local, não informar que está tocando. Revogação bloqueia a próxima sincronização; explique a limitação de dispositivo offline e use tokens/manifests com expiração curta. Não prometa que navegador equivale a appliance nativo.
+
+INTEGRAÇÃO DE IA — CONTRATOS, NÃO PROVIDER REAL AGORA
+Separar geração de roteiro de text-to-speech:
+- `AnnouncementCopyProvider.generate(input): Promise<CopyGenerationResult>`
+- `SpeechSynthesisProvider.synthesize(input): Promise<SpeechSynthesisResult>`
+Use DTOs/schema estritos, timeout, retries controlados, idioma `pt-BR`, limites de tamanho/duração, orçamento/quotas, logs de uso e erros tipados. Resultado passa por validação e continua sujeito a prévia/edição/aprovação. Chave só no servidor. Provider ausente desabilita somente a ação de IA, não o produto. Mocks somente em testes/desenvolvimento sinalizado; nunca sucesso falso em produção. Implementação concreta e teste real ficam para depois que eu fornecer credenciais e escolher fornecedores.
+
+INTEGRAÇÃO DE PAGAMENTO — CONTRATO, NÃO GATEWAY REAL AGORA
+Criar `PaymentProvider` com operações tipadas para criar checkout, validar/processar webhook, consultar estado e cancelar/reembolsar quando aplicável. Não escolher/assumir Stripe, Mercado Pago, Pagar.me etc.; manter domínio independente do provedor. `PAYMENTS_PROVIDER=disabled` é o padrão. Preço e moeda vêm do servidor, não do navegador. Validar assinatura do webhook antes de efeitos, deduplicar `(provider,event_id)`, garantir transições válidas, considerar eventos fora de ordem e permitir reconciliação. Redirect do navegador nunca comprova pagamento. Nunca guardar cartão/CVV. `FakePaymentProvider` apenas em testes e bloqueado em produção.
+
+SEGURANÇA OBRIGATÓRIA
+- Autenticação madura, sessão segura, proteção CSRF conforme cookies, rate limit e anti-enumeração de recuperação.
+- RBAC/escopo tenant em todas as rotas, jobs, exports, downloads e relatórios; testar IDOR/BOLA.
+- Superadmin com MFA se suportado pela stack e auditoria reforçada.
+- Credenciais de player com hash, pairing de uso único, rotação/revogação e escopo mínimo.
+- Upload validado pelo conteúdo real, tamanho/duração máxima, nome saneado, path traversal bloqueado, storage privado e URLs assinadas curtas.
+- Secrets fora do Git, redaction em logs, CSP, TLS/HSTS/CORS restrito, erros sem stack trace.
+- Eventos de auditoria append-only para permissões, publicações, mudanças de plano, pairing/revogação, suporte e exports.
+- Não capturar som ambiente nem ativar microfone. Minimizar dados pessoais e documentar retenção/eliminação LGPD.
+- Informar que o lojista deve possuir direitos de execução das faixas enviadas; não embutir biblioteca de músicas protegidas sem licença.
+
+JOBS E OBSERVABILIDADE
+BullMQ jobs tipados/idempotentes com timeouts, backoff, retries limitados, fila de falhas e reprocessamento auditado. Filas: media-process, schedule-publish, analytics-rollup, notification-delivery; preparar announcement-ai e billing-events mas não chamar providers sem configuração. Log JSON com requestId/jobId, sem segredos nem texto sensível. Health liveness/readiness para API, Postgres, Redis, storage, FFmpeg e worker. Métricas de fila, latência, player offline, falha de reprodução, upload e processamento. Incluir runbooks de backup/restore, reprocessamento de mídia, revogação de dispositivo e webhook inválido.
+
+FASES — EXECUTE EM ORDEM, NÃO DE UMA VEZ SEM VALIDAR
+Fase 0: auditoria, baseline de testes, inventário e plano de risco.
+Fase 1: fundação/env validation/logs/errors/health/Docker/CI/docs.
+Fase 2: auth, organização, RBAC, isolamento multi-tenant e áreas separadas.
+Fase 3: lojas, zonas, pairing, devices, heartbeat/revogação.
+Fase 4: mídia/upload/FFmpeg, anúncios manuais, versões e aprovação.
+Fase 5: playlists, agenda, timezones, campanhas e regras de rotação.
+Fase 6: PWA player, manifesto, playback, cache/offline e eventos.
+Fase 7: analytics, relatórios, CSV, dashboards de estado.
+Fase 8: planos, quotas, assinatura/uso sem checkout real.
+Fase 9: adapters/contratos de IA, orçamento e testes, sem chamada real.
+Fase 10: adapter de pagamento, webhooks/idempotência, sem cobrar de verdade.
+Fase 11: painel Jumpers, suporte, auditoria e operações.
+Fase 12: segurança, acessibilidade, carga básica, backup/restore, E2E e hardening.
+Fase 13: checklist de preparação; só conectar IA/gateway depois de eu fornecer credenciais e autorizar sandbox.
+
+Em cada fase: identifique o estado atual, implemente mudanças verticais reais (banco → domínio → API → UI → testes), execute checks, corrija regressões, atualize docs e relate gaps restantes. Não pause pedindo aprovação após cada detalhe trivial; tome decisões seguras e documente-as. Pare e peça esclarecimento apenas se houver risco real de apagar dados, alterar comportamento financeiro/produção irreversivelmente ou escolher fornecedor/credencial por mim.
+
+TESTES E GATES DE QUALIDADE
+Testar unitariamente máquinas de estado, agenda/timezone/DST, rotação, quotas e permissões. Testar integrações com PostgreSQL, Redis/BullMQ e storage; migrations do zero; FFmpeg com arquivos válidos/corruptos; pairing expirado/reusado, player revogado, eventos duplicados/offline; webhook inválido/duplicado; provider IA ausente/timeout/schema inválido; gateway disabled. E2E: criar organização/lojas → upload → anúncio → playlist → agenda/campanha → parear player → playback → eventos → relatório/CSV; fluxos de isolamento entre tenants; IA e pagamento desabilitados sem impedir core; navegação por teclado. Adicione teste de carga básico do manifesto/heartbeat e teste de restauração do backup quando viável.
+
+Uma fase só é “concluída” se lint, typecheck, testes relevantes, build e migrations passarem; documentação e `.env.example` estão corretos; não há segredo no diff; critérios de aceite executados. Se algum comando não foi executado, diga isso claramente. Não invente métricas ou coberturas. Não delete nem faça reset de banco com dados existentes. Seeds destrutivos só em banco de teste descartável.
+
+ENTREGÁVEIS OBRIGATÓRIOS
+1. `docs/CASTWAVE_ARCHITECTURE.md` com diagrama, decisões, modelo de dados, API, segurança e roadmap.
+2. `docs/IMPLEMENTATION_STATUS.md` com tabela requisito / estado / evidência / risco / próxima ação.
+3. `docs/TEST_PLAN.md` com casos, comando e resultado real.
+4. `docs/RUNBOOK.md` com setup, deploy, backup/restore, jobs e troubleshooting.
+5. `.env.example` completo sem segredos.
+6. Docker Compose para ambiente de desenvolvimento, migrations, seed seguro e CI.
+7. OpenAPI atualizado e instruções de player.
+8. Implementação real por fases e relatórios de execução, não só arquivos de documentação.
+
+FORMATO DO RELATÓRIO APÓS CADA FASE
+- Fase e objetivo.
+- O que encontrou antes de editar.
+- O que implementou, com arquivos/migrations relevantes.
+- Comandos executados e resultados literais resumidos.
+- Testes que passaram/falharam, separando falhas preexistentes.
+- Riscos e gaps que continuam abertos.
+- Próxima fase recomendada.
+
+DEFINIÇÃO DE PRONTO
+O dono da loja consegue montar e agendar música + promoção, tocar em players pareados de lojas autorizadas e ver métricas de execução, tudo sem IA e sem gateway. A área Jumpers fica protegida e auditada; os tenants estão isolados; o player mostra estado real; uploads e agenda são confiáveis; plano/uso funcionam; os adapters estão prontos para receber fornecedores reais; testes e documentação demonstram o estado real. “Funciona” significa demonstrável no código e nos testes, não apenas apresentado num relatório.
+
+COMECE AGORA PELA FASE 0. Audite o repositório e execute a baseline antes de alterar arquivos. Depois continue fase por fase, mantendo o produto funcional e registrando resultados reais. Não faça chamadas reais de IA nem cobranças. Não invente credenciais, APIs, resultados ou testes.

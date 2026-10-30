@@ -283,6 +283,37 @@ describe('determinismo e terminacao', () => {
     expect(a.slots.map((s) => s.candidate.id)).not.toEqual(b.slots.map((s) => s.candidate.id));
   });
 
+  it('o dia da semente vira a meia-noite da LOJA, nao a de UTC', () => {
+    // Sao Paulo e UTC-3: 23:00 do dia 16 em UTC ja e dia 16 as 20:00 local,
+    // e 02:00 do dia 17 em UTC ainda e dia 16 as 23:00 local. Os dois
+    // instantes caem no MESMO dia da loja, entao a rotacao tem que ser a
+    // mesma -- se a semente usasse o dia UTC, ela viraria as 21h local e a
+    // programacao se reembaralharia na frente do cliente, no meio do
+    // expediente.
+    const library = [track('m1'), track('m2'), track('m3'), track('m4'), track('m5')];
+    const regras: Partial<RotationRules> = { musicOrder: 'shuffle', shuffleSeed: null };
+    const chamar = (startAt: Date) =>
+      buildRotation({
+        rules: rules(regras),
+        candidates: library,
+        timezone: SP,
+        startAt,
+        horizonMs: 60 * MIN,
+        maxItems: 200,
+      });
+
+    const noiteDoDia16 = chamar(new Date('2026-03-16T23:00:00Z')); // 20:00 local
+    const madrugadaUtc = chamar(new Date('2026-03-17T02:00:00Z')); // 23:00 local, mesmo dia
+    expect(madrugadaUtc.slots.map((x) => x.candidate.id)).toEqual(
+      noiteDoDia16.slots.map((x) => x.candidate.id),
+    );
+
+    // E o dia seguinte da loja realmente embaralha de novo.
+    const dia17 = chamar(new Date('2026-03-17T13:00:00Z')); // 10:00 local do dia 17
+    expect(dia17.slots.map((x) => x.candidate.id)).not.toEqual(
+      noiteDoDia16.slots.map((x) => x.candidate.id),
+    );
+  });
   it('playlist vazia devolve nada, sem travar', () => {
     const r = build([]);
     expect(r.slots).toHaveLength(0);

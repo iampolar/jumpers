@@ -100,13 +100,13 @@ function PainelOperacao() {
 
   return (
     <div className="min-h-dvh">
-      {/* Barra violeta: sinal visual permanente de que este NAO e o console do cliente. */}
-      <header className="border-b border-violet/20 bg-violet/5">
+      {/* Barra dourada: sinal visual permanente de que este NAO e o console do cliente. */}
+      <header className="border-b border-titanium/25 bg-titanium/5">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
           <div className="flex items-center gap-2.5">
             <CastWaveMark size={20} className="text-text" />
             <span className="text-[13px] font-semibold tracking-tight text-text">Operacao Jumpers</span>
-            <Badge tone="info" className="border-violet/30 bg-violet/10 text-violet">
+            <Badge tone="info" className="border-titanium/30 bg-titanium/10 text-titanium">
               {session?.user.platformRole === 'superadmin' ? 'Superadmin' : 'Suporte'}
             </Badge>
           </div>
@@ -118,7 +118,7 @@ function PainelOperacao() {
 
       <main className="mx-auto max-w-6xl px-6 py-7">
         <div className="mb-6 flex items-center gap-2.5">
-          <ShieldCheck size={18} className="text-violet" aria-hidden />
+          <ShieldCheck size={18} className="text-titanium" aria-hidden />
           <h1 className="text-xl font-semibold tracking-tight">Visao de operacao</h1>
         </div>
 
@@ -166,7 +166,7 @@ function PainelOperacao() {
                   </Badge>
                 </div>
                 <p className="mt-1 text-[12px] leading-relaxed text-muted">{i.message}</p>
-                {i.action && <p className="mt-1.5 text-[11px] text-cyan">{i.action}</p>}
+                {i.action && <p className="mt-1.5 text-[11px] text-cyan-soft">{i.action}</p>}
               </div>
             ))}
           </div>

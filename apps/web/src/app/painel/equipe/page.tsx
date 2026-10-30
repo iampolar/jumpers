@@ -88,7 +88,7 @@ export default function EquipePage() {
                   <Td>
                     <span className="font-medium">{m.name}</span>
                     {m.userId === session?.user.id && (
-                      <span className="ml-2 text-[11px] text-cyan">voce</span>
+                      <span className="ml-2 text-[11px] text-cyan-soft">voce</span>
                     )}
                     <p className="text-[11px] text-muted">{m.email}</p>
                   </Td>
