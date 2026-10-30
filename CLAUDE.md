@@ -59,7 +59,7 @@ Responder 403 revelaria que o recurso existe — vira oráculo de enumeração e
 
 ### Arquivos com caracteres invisíveis
 
-`npm run check:invisible` varre BOM e afins, e está dentro do `verify`. Já aconteceu de uma ferramenta de escrita materializar `﻿` como caractere real no fonte.
+`npm run check:invisible` varre BOM e afins, e está dentro do `verify`. Já aconteceu de uma ferramenta de escrita materializar `\uFEFF` como caractere real no fonte.
 
 ---
 
